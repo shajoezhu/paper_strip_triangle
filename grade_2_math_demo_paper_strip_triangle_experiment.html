@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paper Strip Triangle Experiment — Grade 2 Classroom Demo</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Playful, legible classroom fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #fefce8; /* Warm cream classroom background */
+            color: #1e293b;
+            user-select: none;
+        }
+        .font-display {
+            font-family: 'Fredoka', 'Nunito', sans-serif;
+        }
+        canvas {
+            touch-action: none;
+        }
+
+        /* 3D Giant Coin Flip Animation */
+        .coin-perspective {
+            perspective: 900px;
+        }
+        .giant-coin {
+            width: 112px;
+            height: 112px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .coin-side {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.18), inset 0 0 0 6px rgba(255, 255, 255, 0.45);
+        }
+        .coin-heads {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: #ffffff;
+        }
+        .coin-tails {
+            background: linear-gradient(135deg, #f97316 0%, #c2410c 100%);
+            color: #ffffff;
+            transform: rotateY(180deg);
+        }
+        @keyframes flipToHeads {
+            0% { transform: rotateY(0deg) scale(1); }
+            45% { transform: rotateY(900deg) scale(1.28); }
+            100% { transform: rotateY(1800deg) scale(1); }
+        }
+        @keyframes flipToTails {
+            0% { transform: rotateY(0deg) scale(1); }
+            45% { transform: rotateY(990deg) scale(1.28); }
+            100% { transform: rotateY(1980deg) scale(1); }
+        }
+        .anim-heads {
+            animation: flipToHeads 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+        .anim-tails {
+            animation: flipToTails 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        /* Pop-in animation for 100-strip grid cells */
+        @keyframes cellPop {
+            0% { transform: scale(0.35); opacity: 0; }
+            75% { transform: scale(1.15); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .strip-cell-pop {
+            animation: cellPop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- ==================== TOP SMARTBOARD HEADER ==================== -->
+    <header class="bg-white border-b-4 border-amber-200 shadow-sm sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
+            <!-- Brand & Title -->
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white flex items-center justify-center shadow-md shrink-0">
+                    <!-- Inline SVG Triangle Ruler Icon -->
+                    <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 20h18L12 4z"/>
+                        <path d="M9.5 15h5L12 10.5z"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h1 class="font-display text-xl sm:text-2xl font-bold text-slate-800 tracking-tight">
+                            Paper Strip Triangle Experiment!
+                        </h1>
+                        <span class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300 text-xs font-extrabold">
+                            Grade 2 Math Lab (20 cm Strip)
+                        </span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-600 font-bold">
+                        Rule: Drum Slide & Tear → Flip Coin (Heads = Left, Tails = Right) → Second Tear → Build Triangle!
+                    </p>
+                </div>
+            </div>
+
+            <!-- Main Mode Tabs + Sound Toggle -->
+            <div class="flex items-center gap-2 flex-wrap">
+                <nav class="flex bg-amber-100/80 p-1 rounded-2xl border-2 border-amber-200" role="tablist">
+                    <button id="tabBtnDemo" role="tab" aria-selected="true"
+                        class="px-3.5 py-2 rounded-xl font-display font-bold text-sm sm:text-base bg-indigo-600 text-white shadow transition active:scale-95">
+                        🎪 Tab 1: Step-by-Step Demo
+                    </button>
+                    <button id="tabBtnShowdown" role="tab" aria-selected="false"
+                        class="px-3.5 py-2 rounded-xl font-display font-bold text-sm sm:text-base text-slate-700 hover:bg-amber-200/60 transition active:scale-95">
+                        🏆 Tab 2: 100-Strip Showdown
+                    </button>
+                </nav>
+
+                <!-- Mute / Unmute Sound Effects -->
+                <button id="btnToggleSound"
+                    class="px-3.5 py-2 rounded-2xl bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border-2 border-emerald-300 font-extrabold text-sm flex items-center gap-1.5 transition active:scale-95"
+                    title="Toggle Classroom Sound Effects">
+                    <span id="soundIcon" class="text-base">🔊</span>
+                    <span id="soundText">Sound ON</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==================== TAB 1: STEP-BY-STEP CLASSROOM DEMO ==================== -->
+    <main id="viewDemo" class="flex-grow max-w-7xl w-full mx-auto px-4 py-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+
+        <!-- Left 8 Columns: Interactive 20 cm Paper Strip & Triangle Builder Canvas -->
+        <section class="lg:col-span-8 bg-white rounded-3xl border-4 border-sky-200 p-4 shadow-md flex flex-col justify-between">
+            <div>
+                <!-- Top Controls Bar inside Stage -->
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span id="stageStepPill" class="px-3.5 py-1 rounded-full bg-indigo-100 text-indigo-800 font-display font-bold text-sm">
+                            Step 1 of 4: Drum Slide & First Tear
+                        </span>
+                        <span class="text-xs font-bold text-slate-500 hidden sm:inline">
+                            💡 Tip: You can also drag directly on the strip!
+                        </span>
+                    </div>
+
+                    <!-- Halfway Helper Toggle (for Detective Phase) -->
+                    <button id="btnToggleHelper"
+                        class="px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 border-2 border-amber-300 font-extrabold text-xs sm:text-sm flex items-center gap-1.5 transition active:scale-95">
+                        <span id="helperEyeIcon">🙈</span>
+                        <span id="helperToggleText">Show 10 cm Halfway Helper</span>
+                    </button>
+                </div>
+
+                <!-- Main Interactive Stage Canvas -->
+                <div class="relative w-full h-[350px] sm:h-[385px] rounded-2xl border-2 border-slate-200 bg-gradient-to-b from-sky-50/70 via-white to-emerald-50/50 overflow-hidden">
+                    <canvas id="demoCanvas" class="w-full h-full"></canvas>
+                </div>
+            </div>
+
+            <!-- Bottom 3 Piece Length Readout Cards -->
+            <div class="grid grid-cols-3 gap-2.5 mt-3">
+                <div id="pieceCard0" class="rounded-2xl border-2 border-slate-200 bg-slate-50 p-2.5 text-center transition-all">
+                    <div class="text-xs font-extrabold uppercase tracking-wide text-slate-500">Piece 1</div>
+                    <div id="pieceVal0" class="font-display text-xl sm:text-2xl font-bold text-slate-800 mt-0.5">-- cm</div>
+                </div>
+                <div id="pieceCard1" class="rounded-2xl border-2 border-slate-200 bg-slate-50 p-2.5 text-center transition-all">
+                    <div class="text-xs font-extrabold uppercase tracking-wide text-slate-500">Piece 2</div>
+                    <div id="pieceVal1" class="font-display text-xl sm:text-2xl font-bold text-slate-800 mt-0.5">-- cm</div>
+                </div>
+                <div id="pieceCard2" class="rounded-2xl border-2 border-slate-200 bg-slate-50 p-2.5 text-center transition-all">
+                    <div class="text-xs font-extrabold uppercase tracking-wide text-slate-500">Piece 3</div>
+                    <div id="pieceVal2" class="font-display text-xl sm:text-2xl font-bold text-slate-800 mt-0.5">-- cm</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right 4 Columns: 4-Step Action Controller, Giant Coin & Live Class Tally -->
+        <aside class="lg:col-span-4 flex flex-col gap-4 justify-between">
+
+            <!-- 4-Step Interactive Wizard Panel -->
+            <div class="bg-white rounded-3xl border-4 border-amber-200 p-4 shadow-md flex-grow flex flex-col justify-between">
+                <div>
+                    <!-- Step Progress Dots -->
+                    <div class="grid grid-cols-4 gap-1.5 mb-3">
+                        <div id="prog1" class="h-2.5 rounded-full bg-indigo-600 transition-all"></div>
+                        <div id="prog2" class="h-2.5 rounded-full bg-slate-200 transition-all"></div>
+                        <div id="prog3" class="h-2.5 rounded-full bg-slate-200 transition-all"></div>
+                        <div id="prog4" class="h-2.5 rounded-full bg-slate-200 transition-all"></div>
+                    </div>
+
+                    <!-- Giant 3D Coin Display Box -->
+                    <div class="bg-slate-50 rounded-2xl border-2 border-slate-200 p-3 flex items-center gap-4 mb-3">
+                        <div class="coin-perspective shrink-0">
+                            <div id="giantCoin" class="giant-coin">
+                                <div class="coin-side coin-heads">
+                                    <span class="text-xs font-extrabold tracking-wider opacity-90">HEADS</span>
+                                    <span class="font-display text-xl font-bold leading-tight">👈 LEFT</span>
+                                </div>
+                                <div class="coin-side coin-tails">
+                                    <span class="text-xs font-extrabold tracking-wider opacity-90">TAILS</span>
+                                    <span class="font-display text-xl font-bold leading-tight">RIGHT 👉</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-xs font-extrabold uppercase tracking-wider text-slate-400">Coin Flip Choice</div>
+                            <div id="coinStatusTitle" class="font-display text-lg font-bold text-slate-700 leading-snug mt-0.5">
+                                Waiting for Step 2...
+                            </div>
+                            <p id="coinStatusSub" class="text-xs font-bold text-slate-500 mt-1">
+                                Heads picks LEFT hand.<br>Tails picks RIGHT hand.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Kid-Friendly Result / Instruction Banner -->
+                    <div id="instructionBox" class="rounded-2xl bg-indigo-50 border-2 border-indigo-200 p-3.5 text-slate-800">
+                        <div id="instructionTitle" class="font-display text-base sm:text-lg font-bold text-indigo-900">
+                            Ready for Strip #1!
+                        </div>
+                        <p id="instructionBody" class="text-xs sm:text-sm font-bold text-indigo-800/90 mt-1 leading-relaxed">
+                            Close your eyes! Press <strong>Play Drum & Slide</strong>, then hit <strong>Stop Drum & Tear</strong> when the drum stops!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Primary Chunky Classroom Action Buttons -->
+                <div class="mt-4 flex flex-col gap-2.5">
+                    <button id="btnPrimaryStep"
+                        class="w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-display font-bold text-lg sm:text-xl shadow-lg shadow-indigo-200 transition transform active:scale-95 flex items-center justify-center gap-2">
+                        <span id="btnPrimaryIcon">🥁</span>
+                        <span id="btnPrimaryLabel">Play Drum & Slide</span>
+                    </button>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="btnQuickSim1"
+                            class="py-2.5 px-3 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border-2 border-emerald-300 font-extrabold text-xs sm:text-sm transition active:scale-95">
+                            ⚡ Auto-Play 1 Strip
+                        </button>
+                        <button id="btnResetStrip"
+                            class="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border-2 border-slate-300 font-extrabold text-xs sm:text-sm transition active:scale-95">
+                            🔄 Next Strip (Reset)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compact Live Scoreboard Footer Card -->
+            <div class="bg-white rounded-3xl border-4 border-emerald-200 p-3.5 shadow-md flex items-center justify-between gap-2">
+                <div>
+                    <div class="text-xs font-extrabold uppercase text-slate-500">Logged to Scoreboard</div>
+                    <div class="font-display text-xl font-bold text-slate-800">
+                        <span id="miniTriangles" class="text-emerald-600">0</span> Triangles /
+                        <span id="miniTotal">0</span> Strips
+                    </div>
+                </div>
+                <button id="btnJumpShowdown"
+                    class="px-3.5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-500 text-amber-950 font-display font-bold text-sm shadow-sm transition active:scale-95">
+                    View 100-Grid →
+                </button>
+            </div>
+        </aside>
+    </main>
+
+    <!-- ==================== TAB 2: 20 KIDS × 5 ROUNDS = 100 STRIPS SHOWDOWN ==================== -->
+    <main id="viewShowdown" class="hidden flex-grow max-w-7xl w-full mx-auto px-4 py-4 grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+
+        <!-- Left 7 Columns: 5 Rounds × 20 Students Visual Grid (100 Strips) -->
+        <section class="lg:col-span-7 bg-white rounded-3xl border-4 border-emerald-200 p-4 shadow-md flex flex-col justify-between">
+            <div>
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                    <div>
+                        <h2 class="font-display text-xl sm:text-2xl font-bold text-slate-800">
+                            20 Kids × 5 Rounds = 100 Strips!
+                        </h2>
+                        <p class="text-xs sm:text-sm font-bold text-slate-500">
+                            Each row is 1 Classroom Round (20 students). Green = Triangle! Red = Too Long (≥ 10 cm).
+                        </p>
+                    </div>
+                    <button id="btnClearBoard"
+                        class="px-3 py-1.5 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-800 border-2 border-rose-300 font-extrabold text-xs sm:text-sm transition active:scale-95">
+                        🗑️ Clear Scoreboard
+                    </button>
+                </div>
+
+                <!-- 5 Rounds × 20 Students Matrix -->
+                <div class="bg-slate-50 rounded-2xl border-2 border-slate-200 p-3 space-y-2.5" id="roundsContainer">
+                    <!-- Dynamically populated 5 round rows of 20 strip cards -->
+                </div>
+            </div>
+
+            <!-- Batch Action Buttons -->
+            <div class="mt-4 pt-3 border-t-2 border-slate-100 grid grid-cols-3 gap-2.5">
+                <button id="btnRunRound20"
+                    class="py-3.5 px-3 rounded-2xl bg-amber-400 hover:bg-amber-500 text-amber-950 font-display font-bold text-sm sm:text-base shadow transition active:scale-95">
+                    ▶ Run 1 Round<br><span class="text-xs font-extrabold opacity-85">(20 Kids)</span>
+                </button>
+                <button id="btnRunAll100"
+                    class="py-3.5 px-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-display font-bold text-sm sm:text-base shadow-md shadow-emerald-200 transition active:scale-95">
+                    ⚡ Run All 100 Strips!<br><span class="text-xs font-bold opacity-90">(Full Class Game)</span>
+                </button>
+                <button id="btnRunSuper1000"
+                    class="py-3.5 px-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-display font-bold text-sm sm:text-base shadow-md shadow-indigo-200 transition active:scale-95">
+                    🚀 Run 1,000 Strips<br><span class="text-xs font-bold opacity-90">(Super Fast Math!)</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Right 5 Columns: Kid-Friendly Counters + Class vs. Computer Showdown -->
+        <aside class="lg:col-span-5 flex flex-col gap-4 justify-between">
+
+            <!-- Big Kid-Friendly Counters -->
+            <div class="bg-white rounded-3xl border-4 border-sky-200 p-4 shadow-md">
+                <h3 class="font-display text-lg font-bold text-slate-800 mb-3">
+                    📊 Computer Experiment Tally
+                </h3>
+
+                <div class="grid grid-cols-3 gap-2.5 text-center">
+                    <div class="rounded-2xl bg-slate-100 border-2 border-slate-200 p-3">
+                        <div class="text-xs font-extrabold text-slate-500">Total Tested</div>
+                        <div id="statTotalTested" class="font-display text-2xl sm:text-3xl font-bold text-slate-800 mt-1">0</div>
+                    </div>
+                    <div class="rounded-2xl bg-emerald-50 border-2 border-emerald-300 p-3">
+                        <div class="text-xs font-extrabold text-emerald-700">Triangles Made</div>
+                        <div id="statSuccessCount" class="font-display text-2xl sm:text-3xl font-bold text-emerald-600 mt-1">0</div>
+                    </div>
+                    <div class="rounded-2xl bg-rose-50 border-2 border-rose-300 p-3">
+                        <div class="text-xs font-extrabold text-rose-700">Too Long (Failed)</div>
+                        <div id="statFailCount" class="font-display text-2xl sm:text-3xl font-bold text-rose-600 mt-1">0</div>
+                    </div>
+                </div>
+
+                <!-- Visual Bar Comparing Computer Rate vs Math Secret (19.3%) -->
+                <div class="mt-4 bg-slate-50 rounded-2xl border-2 border-slate-200 p-3.5">
+                    <div class="flex items-center justify-between text-xs sm:text-sm font-extrabold mb-1.5">
+                        <span class="text-emerald-700">Computer Success Rate: <span id="statRatePct" class="text-base">0.0%</span></span>
+                        <span class="text-indigo-700">Math Secret: ~19.3%</span>
+                    </div>
+
+                    <div class="relative w-full h-7 bg-slate-200 rounded-full overflow-hidden border border-slate-300">
+                        <div id="rateProgressBar" class="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 transition-all duration-300" style="width: 0%"></div>
+                        <!-- 19.3% Math Secret Marker Line -->
+                        <div class="absolute top-0 bottom-0 w-1 bg-indigo-600 z-10" style="left: 19.31%" title="Math Secret: 19.3%"></div>
+                    </div>
+
+                    <div class="flex items-center justify-between text-[11px] font-bold text-slate-500 mt-1.5">
+                        <span>0%</span>
+                        <span class="text-indigo-700 font-extrabold">▲ Math Secret (~19 out of 100)</span>
+                        <span>100%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Side-by-Side "Our Class vs. Computer" Scoreboard -->
+            <div class="bg-white rounded-3xl border-4 border-amber-300 p-4 shadow-md flex-grow flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-display text-lg sm:text-xl font-bold text-slate-800">
+                            🆚 Class vs. Computer Showdown!
+                        </h3>
+                        <span class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-xs font-extrabold">
+                            Out of 100
+                        </span>
+                    </div>
+                    <p class="text-xs font-bold text-slate-500 mb-3">
+                        Type in how many triangles our 20 students made across all 5 rounds!
+                    </p>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <!-- Teacher Input: Our Class Score -->
+                        <div class="rounded-2xl bg-amber-50 border-2 border-amber-300 p-3 text-center">
+                            <label for="inputClassScore" class="block text-xs font-extrabold uppercase text-amber-900 mb-1">
+                                🙋 Our Class Score
+                            </label>
+                            <div class="flex items-center justify-center gap-1">
+                                <input id="inputClassScore" type="number" min="0" max="100" placeholder="?"
+                                    class="w-20 text-center font-display text-3xl font-bold text-amber-900 bg-white border-2 border-amber-400 rounded-xl py-1 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                <span class="font-display text-lg font-bold text-amber-700">/ 100</span>
+                            </div>
+                        </div>
+
+                        <!-- Computer's Score out of 100 -->
+                        <div class="rounded-2xl bg-indigo-50 border-2 border-indigo-300 p-3 text-center flex flex-col justify-center">
+                            <div class="text-xs font-extrabold uppercase text-indigo-900 mb-1">
+                                💻 Computer's Score
+                            </div>
+                            <div class="font-display text-3xl font-bold text-indigo-700">
+                                <span id="compScore100">0</span> <span class="text-lg text-indigo-500">/ 100</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Showdown Commentary Banner -->
+                <div id="showdownBanner" class="mt-3 rounded-2xl bg-emerald-50 border-2 border-emerald-200 p-3 text-center">
+                    <p id="showdownMessage" class="text-xs sm:text-sm font-extrabold text-emerald-900">
+                        🎯 Math predicts ~19 triangles out of 100 because half the time the coin picks the short piece!
+                    </p>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <script>
+        /**
+         * Grade 2 Classroom Interactive Demo: Paper Strip Triangle Experiment
+         * Variant 2: Break into 2 pieces -> Flip coin (Heads=Left, Tails=Right) -> Break chosen piece -> Build Triangle
+         * Strip length = 20 cm (Halfway mark = 10 cm)
+         */
+        (function () {
+            // ==================== 1. WEB AUDIO API SOUND EFFECTS ====================
+            const ClassroomAudio = {
+                enabled: true,
+                ctx: null,
+                drumInterval: null,
+
+                ensureContext() {
+                    if (!this.ctx) {
+                        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                        if (AudioCtx) this.ctx = new AudioCtx();
+                    }
+                    if (this.ctx && this.ctx.state === 'suspended') {
+                        this.ctx.resume();
+                    }
+                },
+
+                // Cheerful warm drumbeat
+                playDrumHit(pitchBoost = 0) {
+                    if (!this.enabled) return;
+                    this.ensureContext();
+                    if (!this.ctx) return;
+                    const now = this.ctx.currentTime;
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(165 + pitchBoost, now);
+                    osc.frequency.exponentialRampToValueAtTime(60, now + 0.13);
+
+                    gain.gain.setValueAtTime(0.32, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.14);
+
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.15);
+                },
+
+                startDrumLoop() {
+                    this.stopDrumLoop();
+                    let beat = 0;
+                    this.playDrumHit(0);
+                    this.drumInterval = setInterval(() => {
+                        beat++;
+                        this.playDrumHit((beat % 2) * 25);
+                    }, 210);
+                },
+
+                stopDrumLoop() {
+                    if (this.drumInterval) {
+                        clearInterval(this.drumInterval);
+                        this.drumInterval = null;
+                    }
+                },
+
+                // Crisp paper tear sound
+                playTear() {
+                    if (!this.enabled) return;
+                    this.ensureContext();
+                    if (!this.ctx) return;
+                    const len = Math.floor(this.ctx.sampleRate * 0.16);
+                    const buffer = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
+                    const data = buffer.getChannelData(0);
+                    for (let i = 0; i < len; i++) {
+                        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (len * 0.35));
+                    }
+                    const src = this.ctx.createBufferSource();
+                    src.buffer = buffer;
+
+                    const filter = this.ctx.createBiquadFilter();
+                    filter.type = 'bandpass';
+                    filter.frequency.value = 1900;
+
+                    const gain = this.ctx.createGain();
+                    gain.gain.value = 0.38;
+
+                    src.connect(filter);
+                    filter.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    src.start();
+                },
+
+                // Bright metallic coin flip clink
+                playCoinClink() {
+                    if (!this.enabled) return;
+                    this.ensureContext();
+                    if (!this.ctx) return;
+                    const now = this.ctx.currentTime;
+                    [1396.9, 2093.0].forEach((freq, idx) => {
+                        const osc = this.ctx.createOscillator();
+                        const gain = this.ctx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+                        gain.gain.setValueAtTime(0.22, now + idx * 0.08);
+                        gain.gain.exponentialRampToValueAtTime(0.005, now + idx * 0.08 + 0.32);
+                        osc.connect(gain);
+                        gain.connect(this.ctx.destination);
+                        osc.start(now + idx * 0.08);
+                        osc.stop(now + idx * 0.08 + 0.34);
+                    });
+                },
+
+                // Celebratory ascending chime (Triangle Success!)
+                playSuccessChime() {
+                    if (!this.enabled) return;
+                    this.ensureContext();
+                    if (!this.ctx) return;
+                    const now = this.ctx.currentTime;
+                    const notes = [523.25, 659.25, 783.99, 1046.50];
+                    notes.forEach((freq, i) => {
+                        const osc = this.ctx.createOscillator();
+                        const gain = this.ctx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(freq, now + i * 0.085);
+                        gain.gain.setValueAtTime(0.25, now + i * 0.085);
+                        gain.gain.exponentialRampToValueAtTime(0.008, now + i * 0.085 + 0.38);
+                        osc.connect(gain);
+                        gain.connect(this.ctx.destination);
+                        osc.start(now + i * 0.085);
+                        osc.stop(now + i * 0.085 + 0.4);
+                    });
+                },
+
+                // Gentle friendly "boing" (Too long / Failed)
+                playGentleBoing() {
+                    if (!this.enabled) return;
+                    this.ensureContext();
+                    if (!this.ctx) return;
+                    const now = this.ctx.currentTime;
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(290, now);
+                    osc.frequency.exponentialRampToValueAtTime(165, now + 0.16);
+                    osc.frequency.exponentialRampToValueAtTime(220, now + 0.32);
+
+                    gain.gain.setValueAtTime(0.24, now);
+                    gain.gain.exponentialRampToValueAtTime(0.008, now + 0.35);
+
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.36);
+                }
+            };
+
+            // ==================== 2. EXPERIMENT STATE ====================
+            const STRIP_CM = 20;
+            const HALF_CM = 10;
+
+            const state = {
+                // Step-by-step Demo States:
+                // 'STEP1_READY' | 'STEP1_SLIDING' | 'STEP2_COIN' | 'STEP3_READY' | 'STEP3_SLIDING' | 'STEP4_RESULT'
+                phase: 'STEP1_READY',
+                markerPos: 0.5,         // [0..1] along active strip
+                markerDir: 1,
+                markerSpeed: 0.016,
+                speedChangeTimer: 0,
+                autoStopTimeout: null,
+                showHalfwayHelper: false, // Toggleable 10 cm helper line
+
+                cut1Ratio: null,        // First break point [0..1]
+                chosenSide: null,       // 'LEFT' or 'RIGHT'
+                cut2Ratio: null,        // Second break point [0..1] on full strip
+                piecesCm: null,         // [p1, p2, p3] in cm
+                isTriangle: false,
+                buildAnimProgress: 0,   // [0..1] smooth triangle snap animation
+                confetti: [],
+
+                // Scoreboard / Showdown State:
+                gridHistory: [],        // Up to 100 booleans for the 5x20 visual grid
+                totalTrialsAllTime: 0,  // Can exceed 100 (e.g., Run 1,000 Strips)
+                totalSuccessAllTime: 0
+            };
+
+            // ==================== 3. DOM ELEMENTS ====================
+            const demoCanvas = document.getElementById('demoCanvas');
+            const ctx = demoCanvas.getContext('2d');
+
+            const tabBtnDemo = document.getElementById('tabBtnDemo');
+            const tabBtnShowdown = document.getElementById('tabBtnShowdown');
+            const viewDemo = document.getElementById('viewDemo');
+            const viewShowdown = document.getElementById('viewShowdown');
+
+            const stageStepPill = document.getElementById('stageStepPill');
+            const btnToggleHelper = document.getElementById('btnToggleHelper');
+            const helperEyeIcon = document.getElementById('helperEyeIcon');
+            const helperToggleText = document.getElementById('helperToggleText');
+
+            const giantCoin = document.getElementById('giantCoin');
+            const coinStatusTitle = document.getElementById('coinStatusTitle');
+            const coinStatusSub = document.getElementById('coinStatusSub');
+
+            const instructionBox = document.getElementById('instructionBox');
+            const instructionTitle = document.getElementById('instructionTitle');
+            const instructionBody = document.getElementById('instructionBody');
+
+            const btnPrimaryStep = document.getElementById('btnPrimaryStep');
+            const btnPrimaryIcon = document.getElementById('btnPrimaryIcon');
+            const btnPrimaryLabel = document.getElementById('btnPrimaryLabel');
+
+            const pieceCards = [
+                document.getElementById('pieceCard0'),
+                document.getElementById('pieceCard1'),
+                document.getElementById('pieceCard2')
+            ];
+            const pieceVals = [
+                document.getElementById('pieceVal0'),
+                document.getElementById('pieceVal1'),
+                document.getElementById('pieceVal2')
+            ];
+            const progBars = [
+                document.getElementById('prog1'),
+                document.getElementById('prog2'),
+                document.getElementById('prog3'),
+                document.getElementById('prog4')
+            ];
+
+            // ==================== 4. VARIANT 2 MATH SIMULATION ====================
+            function simulateVariant2Trial() {
+                // Step 1: First break point x uniformly in (0, 1)
+                const x = 0.04 + Math.random() * 0.92;
+                // Step 2: Coin flip -> 50% Heads (LEFT), 50% Tails (RIGHT)
+                const pickLeft = Math.random() < 0.5;
+                // Step 3: Second break point u uniformly in chosen piece
+                const u = 0.05 + Math.random() * 0.90;
+
+                let c1, c2;
+                if (pickLeft) {
+                    c1 = x * u;
+                    c2 = x;
+                } else {
+                    c1 = x;
+                    c2 = x + (1 - x) * u;
+                }
+
+                const p1 = c1 * STRIP_CM;
+                const p2 = (c2 - c1) * STRIP_CM;
+                const p3 = (1 - c2) * STRIP_CM;
+                const valid = p1 < HALF_CM && p2 < HALF_CM && p3 < HALF_CM;
+
+                return {
+                    cut1Ratio: x,
+                    chosenSide: pickLeft ? 'LEFT' : 'RIGHT',
+                    cut2Ratio: pickLeft ? c1 : c2,
+                    piecesCm: [p1, p2, p3],
+                    valid
+                };
+            }
+
+            // ==================== 5. STEP-BY-STEP DEMO FLOW ====================
+            function clearAutoStop() {
+                if (state.autoStopTimeout) {
+                    clearTimeout(state.autoStopTimeout);
+                    state.autoStopTimeout = null;
+                }
+            }
+
+            function resetDemoStrip() {
+                ClassroomAudio.stopDrumLoop();
+                clearAutoStop();
+                state.phase = 'STEP1_READY';
+                state.markerPos = 0.5;
+                state.markerDir = 1;
+                state.cut1Ratio = null;
+                state.chosenSide = null;
+                state.cut2Ratio = null;
+                state.piecesCm = null;
+                state.isTriangle = false;
+                state.buildAnimProgress = 0;
+                state.confetti = [];
+
+                giantCoin.className = 'giant-coin';
+                coinStatusTitle.textContent = 'Waiting for Step 2...';
+                coinStatusTitle.className = 'font-display text-lg font-bold text-slate-700 leading-snug mt-0.5';
+                coinStatusSub.innerHTML = 'Heads picks LEFT hand.<br>Tails picks RIGHT hand.';
+
+                updatePieceCards(null);
+                syncDemoUI();
+            }
+
+            function startSlidingPhase(targetPhase) {
+                state.phase = targetPhase;
+                state.markerPos = 0.15 + Math.random() * 0.7;
+                state.markerDir = Math.random() < 0.5 ? 1 : -1;
+                state.markerSpeed = 0.015;
+                state.speedChangeTimer = 0;
+                ClassroomAudio.startDrumLoop();
+
+                // Auto-stop after a random 1.8s - 3.2s if teacher doesn't click Stop manually
+                clearAutoStop();
+                const autoDuration = 1800 + Math.random() * 1400;
+                state.autoStopTimeout = setTimeout(() => {
+                    if (state.phase === 'STEP1_SLIDING') {
+                        performFirstTear(state.markerPos);
+                    } else if (state.phase === 'STEP3_SLIDING') {
+                        performSecondTear(state.markerPos);
+                    }
+                }, autoDuration);
+
+                syncDemoUI();
+            }
+
+            function performFirstTear(posRatio) {
+                ClassroomAudio.stopDrumLoop();
+                clearAutoStop();
+                ClassroomAudio.playTear();
+
+                state.cut1Ratio = Math.max(0.05, Math.min(0.95, posRatio));
+                state.phase = 'STEP2_COIN';
+                syncDemoUI();
+            }
+
+            function performGiantCoinFlip() {
+                if (state.phase !== 'STEP2_COIN') return;
+                ClassroomAudio.playCoinClink();
+
+                const isHeads = Math.random() < 0.5;
+                state.chosenSide = isHeads ? 'LEFT' : 'RIGHT';
+
+                giantCoin.className = 'giant-coin';
+                void giantCoin.offsetWidth; // Force reflow to restart CSS animation
+                giantCoin.classList.add(isHeads ? 'anim-heads' : 'anim-tails');
+
+                if (isHeads) {
+                    coinStatusTitle.textContent = 'HEADS! Pick LEFT Piece!';
+                    coinStatusTitle.className = 'font-display text-lg font-bold text-blue-600 leading-snug mt-0.5';
+                    coinStatusSub.textContent = `Keeping LEFT (${(state.cut1Ratio * STRIP_CM).toFixed(1)} cm). Setting RIGHT piece aside.`;
+                } else {
+                    coinStatusTitle.textContent = 'TAILS! Pick RIGHT Piece!';
+                    coinStatusTitle.className = 'font-display text-lg font-bold text-orange-600 leading-snug mt-0.5';
+                    coinStatusSub.textContent = `Keeping RIGHT (${((1 - state.cut1Ratio) * STRIP_CM).toFixed(1)} cm). Setting LEFT piece aside.`;
+                }
+
+                // Automatically advance to Step 3 ready state right as coin lands
+                state.phase = 'STEP3_READY';
+                syncDemoUI();
+            }
+
+            function performSecondTear(localRatio) {
+                ClassroomAudio.stopDrumLoop();
+                clearAutoStop();
+                ClassroomAudio.playTear();
+
+                const u = Math.max(0.06, Math.min(0.94, localRatio));
+                let c1, c2;
+                if (state.chosenSide === 'LEFT') {
+                    c1 = state.cut1Ratio * u;
+                    c2 = state.cut1Ratio;
+                } else {
+                    c1 = state.cut1Ratio;
+                    c2 = state.cut1Ratio + (1 - state.cut1Ratio) * u;
+                }
+
+                state.cut1Ratio = c1;
+                state.cut2Ratio = c2;
+                const p1 = c1 * STRIP_CM;
+                const p2 = (c2 - c1) * STRIP_CM;
+                const p3 = (1 - c2) * STRIP_CM;
+                state.piecesCm = [p1, p2, p3];
+                state.isTriangle = p1 < HALF_CM && p2 < HALF_CM && p3 < HALF_CM;
+                state.phase = 'STEP4_RESULT';
+                state.buildAnimProgress = 0;
+
+                updatePieceCards(state.piecesCm);
+                syncDemoUI();
+                recordTrialsToScoreboard([state.isTriangle]);
+
+                if (state.isTriangle) {
+                    ClassroomAudio.playSuccessChime();
+                    triggerConfetti();
+                } else {
+                    ClassroomAudio.playGentleBoing();
+                }
+            }
+
+            function syncDemoUI() {
+                // Reset progress dots
+                const stepIndex =
+                    state.phase.startsWith('STEP1') ? 1 :
+                    state.phase === 'STEP2_COIN' ? 2 :
+                    state.phase.startsWith('STEP3') ? 3 : 4;
+
+                progBars.forEach((bar, idx) => {
+                    bar.className = idx < stepIndex
+                        ? 'h-2.5 rounded-full bg-indigo-600 transition-all'
+                        : 'h-2.5 rounded-full bg-slate-200 transition-all';
+                });
+
+                if (state.phase === 'STEP1_READY') {
+                    stageStepPill.textContent = 'Step 1 of 4: Drum Slide & First Tear';
+                    stageStepPill.className = 'px-3.5 py-1 rounded-full bg-indigo-100 text-indigo-800 font-display font-bold text-sm';
+
+                    instructionBox.className = 'rounded-2xl bg-indigo-50 border-2 border-indigo-200 p-3.5 text-slate-800';
+                    instructionTitle.className = 'font-display text-base sm:text-lg font-bold text-indigo-900';
+                    instructionTitle.textContent = 'Step 1: First Drum Slide & Tear';
+                    instructionBody.innerHTML = 'Close your eyes! Click <strong>Play Drum & Slide</strong>, then click <strong>Stop Drum & Tear!</strong> (or drag on the strip).';
+
+                    btnPrimaryIcon.textContent = '🥁';
+                    btnPrimaryLabel.textContent = 'Play Drum & Slide';
+                    btnPrimaryStep.className = 'w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-display font-bold text-lg sm:text-xl shadow-lg shadow-indigo-200 transition transform active:scale-95 flex items-center justify-center gap-2';
+
+                } else if (state.phase === 'STEP1_SLIDING') {
+                    stageStepPill.textContent = 'Step 1 of 4: Sliding... Ready to Stop!';
+                    stageStepPill.className = 'px-3.5 py-1 rounded-full bg-rose-100 text-rose-700 font-display font-bold text-sm animate-pulse';
+
+                    instructionTitle.textContent = '🥁 Drum is beating! Fingers sliding...';
+                    instructionBody.innerHTML = 'Shout <strong>"STOP!"</strong> and press the button below to tear the strip into Left & Right pieces!';
+
+                    btnPrimaryIcon.textContent = '✋';
+                    btnPrimaryLabel.textContent = 'Stop Drum & Tear!';
+                    btnPrimaryStep.className = 'w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 text-white font-display font-bold text-lg sm:text-xl shadow-lg shadow-rose-200 transition transform active:scale-95 flex items-center justify-center gap-2';
+
+                } else if (state.phase === 'STEP2_COIN') {
+                    stageStepPill.textContent = 'Step 2 of 4: Giant Coin Flip!';
+                    stageStepPill.className = 'px-3.5 py-1 rounded-full bg-amber-100 text-amber-800 font-display font-bold text-sm';
+
+                    instructionBox.className = 'rounded-2xl bg-amber-50 border-2 border-amber-300 p-3.5 text-slate-800';
+                    instructionTitle.className = 'font-display text-base sm:text-lg font-bold text-amber-900';
+                    instructionTitle.textContent = 'Step 2: Flip the Giant Coin!';
+                    instructionBody.innerHTML = 'Hold Left piece in Left hand, Right piece in Right hand. Flip the coin: <strong>Heads = Left</strong>, <strong>Tails = Right</strong>!';
+
+                    btnPrimaryIcon.textContent = '🪙';
+                    btnPrimaryLabel.textContent = 'Flip Giant Coin!';
+                    btnPrimaryStep.className = 'w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-display font-bold text-lg sm:text-xl shadow-lg shadow-amber-200 transition transform active:scale-95 flex items-center justify-center gap-2';
+
+                } else if (state.phase === 'STEP3_READY') {
+                    stageStepPill.textContent = 'Step 3 of 4: Second Drum Slide & Tear';
+                    stageStepPill.className = 'px-3.5 py-1 rounded-full bg-purple-100 text-purple-800 font-display font-bold text-sm';
+
+                    instructionBox.className = 'rounded-2xl bg-purple-50 border-2 border-purple-200 p-3.5 text-slate-800';
+                    instructionTitle.className = 'font-display text-base sm:text-lg font-bold text-purple-900';
+                    instructionTitle.textContent = `Step 3: Tear the ${state.chosenSide} Piece!`;
+                    instructionBody.innerHTML = `We kept the <strong>${state.chosenSide}</strong> piece! Now drum-slide and tear it into two so we have <strong>3 pieces total</strong>.`;
+
+                    btnPrimaryIcon.textContent = '🥁';
+                    btnPrimaryLabel.textContent = 'Drum & Second Tear!';
+                    btnPrimaryStep.className = 'w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-display font-bold text-lg sm:text-xl shadow-lg shadow-purple-200 transition transform active:scale-95 flex items-center justify-center gap-2';
+
+                } else if (state.phase === 'STEP3_SLIDING') {
+                    stageStepPill.textContent = 'Step 3 of 4: Sliding on Chosen Piece...';
+                    stageStepPill.className = 'px-3.5 py-1 rounded-full bg-rose-100 text-rose-700 font-display font-bold text-sm animate-pulse';
+
+                    instructionTitle.textContent = '🥁 Drum is beating on the chosen piece!';
+                    instructionBody.innerHTML = 'Press <strong>Stop Drum & Tear!</strong> to make our 3 pieces and test if they build a triangle!';
+
+                    btnPrimaryIcon.textContent = '✂️';
+                    btnPrimaryLabel.textContent = 'Stop Drum & Tear!';
+                    btnPrimaryStep.className = 'w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-display font-bold text-lg sm:text-xl shadow-lg shadow-rose-200 transition transform active:scale-95 flex items-center justify-center gap-2';
+
+                } else if (state.phase === 'STEP4_RESULT') {
+                    stageStepPill.textContent = 'Step 4 of 4: Triangle Builder & Detective Check';
+                    if (state.isTriangle) {
+                        stageStepPill.className = 'px-3.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-display font-bold text-sm';
+                        instructionBox.className = 'rounded-2xl bg-emerald-50 border-2 border-emerald-400 p-3.5 text-emerald-950';
+                        instructionTitle.className = 'font-display text-base sm:text-lg font-bold text-emerald-800';
+                        instructionTitle.textContent = '🎉 YES! It makes a Triangle!';
+                        instructionBody.innerHTML = 'All 3 pieces are <strong>shorter than 10 cm</strong> (half of 20 cm), so their corners reach and connect!';
+                    } else {
+                        const longest = Math.max(...state.piecesCm).toFixed(1);
+                        stageStepPill.className = 'px-3.5 py-1 rounded-full bg-rose-100 text-rose-800 font-display font-bold text-sm';
+                        instructionBox.className = 'rounded-2xl bg-rose-50 border-2 border-rose-400 p-3.5 text-rose-950';
+                        instructionTitle.className = 'font-display text-base sm:text-lg font-bold text-rose-800';
+                        instructionTitle.textContent = `❌ Oh no! The ${longest} cm piece is too long!`;
+                        instructionBody.innerHTML = `The <strong>${longest} cm</strong> piece is longer than half (<strong>10 cm</strong>), so the other two pieces can't reach!`;
+                    }
+
+                    btnPrimaryIcon.textContent = '🔄';
+                    btnPrimaryLabel.textContent = 'Next Strip (Reset)';
+                    btnPrimaryStep.className = 'w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-display font-bold text-lg sm:text-xl shadow-lg shadow-emerald-200 transition transform active:scale-95 flex items-center justify-center gap-2';
+                }
+            }
+
+            function updatePieceCards(pieces) {
+                if (!pieces) {
+                    pieceCards.forEach((card, i) => {
+                        card.className = 'rounded-2xl border-2 border-slate-200 bg-slate-50 p-2.5 text-center transition-all';
+                        pieceVals[i].className = 'font-display text-xl sm:text-2xl font-bold text-slate-800 mt-0.5';
+                        pieceVals[i].textContent = '-- cm';
+                    });
+                    return;
+                }
+                pieces.forEach((len, i) => {
+                    const tooLong = len >= HALF_CM;
+                    pieceVals[i].textContent = `${len.toFixed(1)} cm`;
+                    if (tooLong) {
+                        pieceCards[i].className = 'rounded-2xl border-2 border-rose-400 bg-rose-50 p-2.5 text-center transition-all shadow-sm';
+                        pieceVals[i].className = 'font-display text-xl sm:text-2xl font-bold text-rose-600 mt-0.5';
+                    } else {
+                        pieceCards[i].className = 'rounded-2xl border-2 border-emerald-400 bg-emerald-50 p-2.5 text-center transition-all';
+                        pieceVals[i].className = 'font-display text-xl sm:text-2xl font-bold text-emerald-700 mt-0.5';
+                    }
+                });
+            }
+
+            // Primary wizard button handler
+            btnPrimaryStep.addEventListener('click', () => {
+                if (state.phase === 'STEP1_READY') {
+                    startSlidingPhase('STEP1_SLIDING');
+                } else if (state.phase === 'STEP1_SLIDING') {
+                    performFirstTear(state.markerPos);
+                } else if (state.phase === 'STEP2_COIN') {
+                    performGiantCoinFlip();
+                } else if (state.phase === 'STEP3_READY') {
+                    startSlidingPhase('STEP3_SLIDING');
+                } else if (state.phase === 'STEP3_SLIDING') {
+                    performSecondTear(state.markerPos);
+                } else if (state.phase === 'STEP4_RESULT') {
+                    resetDemoStrip();
+                }
+            });
+
+            // Auto-Play 1 Full Strip Button
+            document.getElementById('btnQuickSim1').addEventListener('click', () => {
+                ClassroomAudio.stopDrumLoop();
+                clearAutoStop();
+                const trial = simulateVariant2Trial();
+                state.cut1Ratio = trial.cut1Ratio;
+                state.chosenSide = trial.chosenSide;
+
+                giantCoin.className = 'giant-coin';
+                void giantCoin.offsetWidth;
+                giantCoin.classList.add(trial.chosenSide === 'LEFT' ? 'anim-heads' : 'anim-tails');
+                coinStatusTitle.textContent = trial.chosenSide === 'LEFT' ? 'HEADS! Pick LEFT Piece!' : 'TAILS! Pick RIGHT Piece!';
+                coinStatusTitle.className = trial.chosenSide === 'LEFT'
+                    ? 'font-display text-lg font-bold text-blue-600 leading-snug mt-0.5'
+                    : 'font-display text-lg font-bold text-orange-600 leading-snug mt-0.5';
+                coinStatusSub.textContent = `Auto-demo tore ${trial.chosenSide} piece into 3 strips.`;
+
+                // Set final cuts & pieces directly
+                const sorted = [trial.cut1Ratio, trial.cut2Ratio].sort((a, b) => a - b);
+                state.cut1Ratio = sorted[0];
+                state.cut2Ratio = sorted[1];
+                state.piecesCm = trial.piecesCm;
+                state.isTriangle = trial.valid;
+                state.phase = 'STEP4_RESULT';
+                state.buildAnimProgress = 0;
+
+                updatePieceCards(state.piecesCm);
+                syncDemoUI();
+                recordTrialsToScoreboard([state.isTriangle]);
+
+                if (state.isTriangle) {
+                    ClassroomAudio.playSuccessChime();
+                    triggerConfetti();
+                } else {
+                    ClassroomAudio.playGentleBoing();
+                }
+            });
+
+            document.getElementById('btnResetStrip').addEventListener('click', resetDemoStrip);
+
+            // Toggle Halfway Helper Line (10 cm)
+            btnToggleHelper.addEventListener('click', () => {
+                state.showHalfwayHelper = !state.showHalfwayHelper;
+                if (state.showHalfwayHelper) {
+                    helperEyeIcon.textContent = '👀';
+                    helperToggleText.textContent = 'Hide 10 cm Halfway Helper';
+                    btnToggleHelper.className = 'px-3 py-1.5 rounded-xl bg-amber-300 hover:bg-amber-400 text-amber-950 border-2 border-amber-500 font-extrabold text-xs sm:text-sm flex items-center gap-1.5 transition active:scale-95 shadow-sm';
+                } else {
+                    helperEyeIcon.textContent = '🙈';
+                    helperToggleText.textContent = 'Show 10 cm Halfway Helper';
+                    btnToggleHelper.className = 'px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 border-2 border-amber-300 font-extrabold text-xs sm:text-sm flex items-center gap-1.5 transition active:scale-95';
+                }
+            });
+
+            // ==================== 6. MANUAL DRAG ON PAPER STRIP ====================
+            function getCanvasPointerX(evt) {
+                const rect = demoCanvas.getBoundingClientRect();
+                const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+                return clientX - rect.left;
+            }
+
+            function handleStripPointerInteraction(evt) {
+                const rect = demoCanvas.getBoundingClientRect();
+                const W = rect.width;
+                const padX = Math.max(32, W * 0.08);
+                const stripW = W - padX * 2;
+                const px = getCanvasPointerX(evt);
+
+                if (state.phase === 'STEP1_READY' || state.phase === 'STEP1_SLIDING') {
+                    const ratio = Math.max(0.05, Math.min(0.95, (px - padX) / stripW));
+                    performFirstTear(ratio);
+                } else if (state.phase === 'STEP3_READY' || state.phase === 'STEP3_SLIDING') {
+                    const gap = 14;
+                    if (state.chosenSide === 'LEFT') {
+                        const leftW = Math.max(10, state.cut1Ratio * stripW - gap / 2);
+                        const u = Math.max(0.06, Math.min(0.94, (px - padX) / leftW));
+                        performSecondTear(u);
+                    } else {
+                        const rightX = padX + state.cut1Ratio * stripW + gap / 2;
+                        const rightW = Math.max(10, (1 - state.cut1Ratio) * stripW - gap / 2);
+                        const u = Math.max(0.06, Math.min(0.94, (px - rightX) / rightW));
+                        performSecondTear(u);
+                    }
+                }
+            }
+
+            demoCanvas.addEventListener('click', handleStripPointerInteraction);
+
+            // ==================== 7. CANVAS ANIMATION & GEOMETRY RENDERING ====================
+            function triggerConfetti() {
+                const colors = ['#10b981', '#f59e0b', '#3b82f6', '#ec4899', '#8b5cf6'];
+                const rect = demoCanvas.getBoundingClientRect();
+                state.confetti = [];
+                for (let i = 0; i < 60; i++) {
+                    state.confetti.push({
+                        x: rect.width * 0.5 + (Math.random() - 0.5) * 160,
+                        y: rect.height * 0.62,
+                        vx: (Math.random() - 0.5) * 9,
+                        vy: -4.5 - Math.random() * 6.5,
+                        size: 6 + Math.random() * 6,
+                        color: colors[Math.floor(Math.random() * colors.length)],
+                        rot: Math.random() * Math.PI * 2,
+                        vrot: (Math.random() - 0.5) * 0.25
+                    });
+                }
+            }
+
+            function resizeDemoCanvas() {
+                const dpr = window.devicePixelRatio || 1;
+                const rect = demoCanvas.getBoundingClientRect();
+                if (rect.width > 0 && rect.height > 0) {
+                    demoCanvas.width = rect.width * dpr;
+                    demoCanvas.height = rect.height * dpr;
+                    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                }
+            }
+
+            function renderDemoLoop() {
+                const rect = demoCanvas.getBoundingClientRect();
+                const W = rect.width;
+                const H = rect.height;
+
+                if (W > 0 && H > 0) {
+                    ctx.clearRect(0, 0, W, H);
+
+                    // Update bouncing snail/bunny marker at varying speeds during sliding phases
+                    if (state.phase === 'STEP1_SLIDING' || state.phase === 'STEP3_SLIDING') {
+                        state.speedChangeTimer++;
+                        if (state.speedChangeTimer > 28) {
+                            state.speedChangeTimer = 0;
+                            // Vary between slow snail (0.009) and fast bunny (0.028)
+                            state.markerSpeed = 0.009 + Math.random() * 0.019;
+                        }
+                        state.markerPos += state.markerDir * state.markerSpeed;
+                        if (state.markerPos >= 0.95) {
+                            state.markerPos = 0.95;
+                            state.markerDir = -1;
+                        } else if (state.markerPos <= 0.05) {
+                            state.markerPos = 0.05;
+                            state.markerDir = 1;
+                        }
+                    }
+
+                    // Advance triangle builder animation smoothly
+                    if (state.phase === 'STEP4_RESULT' && state.buildAnimProgress < 1) {
+                        state.buildAnimProgress = Math.min(1, state.buildAnimProgress + 0.055);
+                    }
+
+                    drawTopStripZone(W, H);
+                    drawBottomBuilderZone(W, H);
+                    drawConfettiParticles(H);
+                }
+                requestAnimationFrame(renderDemoLoop);
+            }
+
+            function drawTopStripZone(W, H) {
+                const padX = Math.max(32, W * 0.08);
+                const stripW = W - padX * 2;
+                const stripH = 34;
+                const stripY = 54;
+
+                // Ruler endpoints
+                ctx.fillStyle = '#64748b';
+                ctx.font = 'bold 12px Fredoka, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('0 cm', padX, stripY - 10);
+                ctx.fillText('20 cm', padX + stripW, stripY - 10);
+
+                // Optional 10 cm Halfway Helper Line
+                if (state.showHalfwayHelper || state.phase === 'STEP4_RESULT') {
+                    const midX = padX + stripW * 0.5;
+                    ctx.save();
+                    ctx.setLineDash([6, 5]);
+                    ctx.strokeStyle = '#d97706';
+                    ctx.lineWidth = 2.5;
+                    ctx.beginPath();
+                    ctx.moveTo(midX, stripY - 22);
+                    ctx.lineTo(midX, stripY + stripH + 22);
+                    ctx.stroke();
+                    ctx.restore();
+
+                    ctx.fillStyle = '#b45309';
+                    ctx.font = 'bold 12px Nunito, sans-serif';
+                    ctx.fillText('⭐ Halfway Mark = 10 cm ⭐', midX, stripY - 28);
+                }
+
+                // Draw strip according to current phase
+                if (state.phase === 'STEP1_READY' || state.phase === 'STEP1_SLIDING') {
+                    const grad = ctx.createLinearGradient(padX, 0, padX + stripW, 0);
+                    grad.addColorStop(0, '#38bdf8');
+                    grad.addColorStop(0.5, '#818cf8');
+                    grad.addColorStop(1, '#fb923c');
+                    fillRoundedRect(padX, stripY, stripW, stripH, 10, grad);
+
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = 'bold 13px Fredoka, sans-serif';
+                    ctx.fillText('20 cm Whole Paper Strip', padX + stripW / 2, stripY + 22);
+
+                    if (state.phase === 'STEP1_SLIDING') {
+                        const mx = padX + state.markerPos * stripW;
+                        const isFast = state.markerSpeed > 0.018;
+                        drawBouncingMarker(mx, stripY, stripH, isFast ? '🐰' : '🐌', `${(state.markerPos * STRIP_CM).toFixed(1)} cm`);
+                    }
+
+                } else if (state.phase === 'STEP2_COIN' || state.phase === 'STEP3_READY' || state.phase === 'STEP3_SLIDING') {
+                    const gap = 14;
+                    const leftW = Math.max(8, state.cut1Ratio * stripW - gap / 2);
+                    const rightX = padX + state.cut1Ratio * stripW + gap / 2;
+                    const rightW = Math.max(8, (1 - state.cut1Ratio) * stripW - gap / 2);
+
+                    const dimLeft = state.chosenSide === 'RIGHT';
+                    const dimRight = state.chosenSide === 'LEFT';
+
+                    // LEFT piece
+                    ctx.save();
+                    ctx.globalAlpha = dimLeft ? 0.28 : 1;
+                    fillRoundedRect(padX, stripY, leftW, stripH, 9, '#3b82f6');
+                    if (leftW > 46) {
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = 'bold 12px Fredoka, sans-serif';
+                        ctx.fillText(`LEFT ${(state.cut1Ratio * STRIP_CM).toFixed(1)}cm`, padX + leftW / 2, stripY + 21);
+                    }
+                    ctx.restore();
+
+                    // RIGHT piece
+                    ctx.save();
+                    ctx.globalAlpha = dimRight ? 0.28 : 1;
+                    fillRoundedRect(rightX, stripY, rightW, stripH, 9, '#f97316');
+                    if (rightW > 46) {
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = 'bold 12px Fredoka, sans-serif';
+                        ctx.fillText(`RIGHT ${((1 - state.cut1Ratio) * STRIP_CM).toFixed(1)}cm`, rightX + rightW / 2, stripY + 21);
+                    }
+                    ctx.restore();
+
+                    // Label set-aside piece
+                    if (dimLeft) {
+                        ctx.fillStyle = '#94a3b8';
+                        ctx.font = 'bold 11px Nunito, sans-serif';
+                        ctx.fillText('(Set aside)', padX + leftW / 2, stripY + stripH + 16);
+                    } else if (dimRight) {
+                        ctx.fillStyle = '#94a3b8';
+                        ctx.font = 'bold 11px Nunito, sans-serif';
+                        ctx.fillText('(Set aside)', rightX + rightW / 2, stripY + stripH + 16);
+                    }
+
+                    // Sliding marker on chosen piece during Step 3
+                    if (state.phase === 'STEP3_SLIDING') {
+                        const isFast = state.markerSpeed > 0.018;
+                        if (state.chosenSide === 'LEFT') {
+                            const mx = padX + state.markerPos * leftW;
+                            drawBouncingMarker(mx, stripY, stripH, isFast ? '🐰' : '🐌', 'Tear!');
+                        } else {
+                            const mx = rightX + state.markerPos * rightW;
+                            drawBouncingMarker(mx, stripY, stripH, isFast ? '🐰' : '🐌', 'Tear!');
+                        }
+                    }
+
+                } else if (state.phase === 'STEP4_RESULT') {
+                    // Show all 3 resulting pieces along the top ruler
+                    const gap = 8;
+                    const [p1, p2, p3] = state.piecesCm;
+                    const w1 = Math.max(6, (p1 / STRIP_CM) * stripW - gap);
+                    const w2 = Math.max(6, (p2 / STRIP_CM) * stripW - gap);
+                    const w3 = Math.max(6, (p3 / STRIP_CM) * stripW - gap);
+
+                    const x1 = padX;
+                    const x2 = padX + (p1 / STRIP_CM) * stripW + gap / 2;
+                    const x3 = padX + ((p1 + p2) / STRIP_CM) * stripW + gap;
+
+                    const c1 = p1 >= HALF_CM ? '#ef4444' : '#3b82f6';
+                    const c2 = p2 >= HALF_CM ? '#ef4444' : '#10b981';
+                    const c3 = p3 >= HALF_CM ? '#ef4444' : '#8b5cf6';
+
+                    fillRoundedRect(x1, stripY, w1, stripH, 8, c1);
+                    fillRoundedRect(x2, stripY, w2, stripH, 8, c2);
+                    fillRoundedRect(x3, stripY, w3, stripH, 8, c3);
+
+                    [
+                        { x: x1 + w1 / 2, len: p1 },
+                        { x: x2 + w2 / 2, len: p2 },
+                        { x: x3 + w3 / 2, len: p3 }
+                    ].forEach(seg => {
+                        if (seg.len >= HALF_CM) {
+                            ctx.fillStyle = '#dc2626';
+                            ctx.font = 'bold 12px Nunito, sans-serif';
+                            ctx.fillText(`⚠️ ${seg.len.toFixed(1)} cm > 10 cm!`, seg.x, stripY + stripH + 18);
+                        }
+                    });
+                }
+            }
+
+            function drawBottomBuilderZone(W, H) {
+                const zoneTop = 136;
+                const zoneH = H - zoneTop - 14;
+
+                // Soft dashed card frame
+                ctx.save();
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.72)';
+                ctx.strokeStyle = '#cbd5e1';
+                ctx.setLineDash([6, 6]);
+                ctx.lineWidth = 2;
+                roundedRectPath(ctx, 18, zoneTop, W - 36, zoneH, 18);
+                ctx.fill();
+                ctx.stroke();
+                ctx.restore();
+
+                if (state.phase !== 'STEP4_RESULT') {
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.font = 'bold 15px Fredoka, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('🔺 Triangle Builder Arena (3 pieces will connect here in Step 4)', W / 2, zoneTop + zoneH / 2 + 5);
+                    return;
+                }
+
+                // Sort pieces so longest piece sits flat as the base
+                const [p1, p2, p3] = state.piecesCm;
+                const sorted = [
+                    { len: p1, color: p1 >= HALF_CM ? '#ef4444' : '#3b82f6' },
+                    { len: p2, color: p2 >= HALF_CM ? '#ef4444' : '#10b981' },
+                    { len: p3, color: p3 >= HALF_CM ? '#ef4444' : '#8b5cf6' }
+                ].sort((a, b) => b.len - a.len);
+
+                const baseSeg = sorted[0];
+                const leftSeg = sorted[1];
+                const rightSeg = sorted[2];
+
+                const ease = 1 - Math.pow(1 - state.buildAnimProgress, 3);
+                const maxBasePx = W * 0.60;
+                const scale = Math.min(maxBasePx / baseSeg.len, (zoneH - 68) / 10);
+
+                const basePx = baseSeg.len * scale;
+                const leftPx = leftSeg.len * scale;
+                const rightPx = rightSeg.len * scale;
+
+                const baseY = zoneTop + zoneH - 46;
+                const xLeft = (W - basePx) / 2;
+                const xRight = xLeft + basePx;
+
+                if (state.isTriangle) {
+                    // Law of cosines for exact apex coordinates
+                    const cosA = (baseSeg.len ** 2 + leftSeg.len ** 2 - rightSeg.len ** 2) / (2 * baseSeg.len * leftSeg.len);
+                    const targetAngle = Math.acos(Math.max(-1, Math.min(1, cosA)));
+                    const animAngle = targetAngle * ease;
+
+                    const apexX = xLeft + leftPx * Math.cos(animAngle);
+                    const apexY = baseY - leftPx * Math.sin(animAngle);
+
+                    // Fill soft green interior once folded up
+                    if (ease > 0.6) {
+                        ctx.save();
+                        ctx.globalAlpha = (ease - 0.6) * 0.55;
+                        ctx.fillStyle = '#10b981';
+                        ctx.beginPath();
+                        ctx.moveTo(xLeft, baseY);
+                        ctx.lineTo(xRight, baseY);
+                        ctx.lineTo(apexX, apexY);
+                        ctx.closePath();
+                        ctx.fill();
+                        ctx.restore();
+                    }
+
+                    // Draw 3 thick rounded strips
+                    drawStripSegment(xLeft, baseY, xRight, baseY, baseSeg.color, 9);
+                    drawStripSegment(xLeft, baseY, apexX, apexY, leftSeg.color, 9);
+                    drawStripSegment(xRight, baseY, apexX, apexY, rightSeg.color, 9);
+
+                    // Corner joint circles
+                    [[xLeft, baseY], [xRight, baseY], [apexX, apexY]].forEach(([cx, cy]) => {
+                        ctx.fillStyle = '#ffffff';
+                        ctx.strokeStyle = '#0f172a';
+                        ctx.lineWidth = 2.5;
+                        ctx.beginPath();
+                        ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.stroke();
+                    });
+
+                    // Happy badge inside triangle
+                    if (ease > 0.85) {
+                        const centerX = (xLeft + xRight + apexX) / 3;
+                        const centerY = (baseY + baseY + apexY) / 3;
+                        ctx.font = '26px sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('🎉', centerX, centerY + 9);
+                    }
+
+                    // Side length labels
+                    ctx.fillStyle = '#065f46';
+                    ctx.font = 'bold 13px Fredoka, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`${baseSeg.len.toFixed(1)} cm`, (xLeft + xRight) / 2, baseY + 22);
+                    ctx.fillText(`${leftSeg.len.toFixed(1)} cm`, (xLeft + apexX) / 2 - 30, (baseY + apexY) / 2);
+                    ctx.fillText(`${rightSeg.len.toFixed(1)} cm`, (xRight + apexX) / 2 + 30, (baseY + apexY) / 2);
+
+                } else {
+                    // Failed case: Two shorter arms fold inward to a low angle (0.24 rad) and fail to touch!
+                    const foldAngle = 0.24 * ease;
+                    const tipLeftX = xLeft + leftPx * Math.cos(foldAngle);
+                    const tipLeftY = baseY - leftPx * Math.sin(foldAngle);
+                    const tipRightX = xRight - rightPx * Math.cos(foldAngle);
+                    const tipRightY = baseY - rightPx * Math.sin(foldAngle);
+
+                    // Draw coral-red long base + two shorter arms
+                    drawStripSegment(xLeft, baseY, xRight, baseY, '#ef4444', 10);
+                    drawStripSegment(xLeft, baseY, tipLeftX, tipLeftY, leftSeg.color, 8);
+                    drawStripSegment(xRight, baseY, tipRightX, tipRightY, rightSeg.color, 8);
+
+                    // Dotted gap line between the two short tips
+                    ctx.save();
+                    ctx.setLineDash([5, 5]);
+                    ctx.strokeStyle = '#dc2626';
+                    ctx.lineWidth = 2.5;
+                    ctx.beginPath();
+                    ctx.moveTo(tipLeftX, tipLeftY);
+                    ctx.lineTo(tipRightX, tipRightY);
+                    ctx.stroke();
+                    ctx.restore();
+
+                    const missingCm = Math.max(0, baseSeg.len - (leftSeg.len + rightSeg.len));
+                    ctx.fillStyle = '#dc2626';
+                    ctx.font = 'bold 13px Nunito, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(
+                        `Gap: ${missingCm.toFixed(1)} cm short — can't reach!`,
+                        W / 2,
+                        Math.min(tipLeftY, tipRightY) - 12
+                    );
+
+                    // Visual "10 cm Halfway Ruler" comparison bar directly underneath the long piece!
+                    const halfPx = HALF_CM * scale;
+                    const rulerY = baseY + 18;
+                    fillRoundedRect(xLeft, rulerY, halfPx, 10, 5, '#f59e0b');
+                    ctx.fillStyle = '#b45309';
+                    ctx.font = 'bold 11px Fredoka, sans-serif';
+                    ctx.textAlign = 'left';
+                    ctx.fillText(`10 cm Halfway Ruler (Long piece is ${baseSeg.len.toFixed(1)} cm!)`, xLeft, rulerY + 23);
+                }
+            }
+
+            function drawConfettiParticles(H) {
+                for (let i = state.confetti.length - 1; i >= 0; i--) {
+                    const p = state.confetti[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.34;
+                    p.rot += p.vrot;
+
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(p.rot);
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+                    ctx.restore();
+
+                    if (p.y > H + 20) state.confetti.splice(i, 1);
+                }
+            }
+
+            // Canvas drawing helpers
+            function fillRoundedRect(x, y, w, h, r, fill) {
+                ctx.save();
+                ctx.fillStyle = fill;
+                roundedRectPath(ctx, x, y, w, h, r);
+                ctx.fill();
+                ctx.restore();
+            }
+
+            function roundedRectPath(c, x, y, w, h, r) {
+                const rad = Math.min(r, w / 2, h / 2);
+                c.beginPath();
+                c.moveTo(x + rad, y);
+                c.arcTo(x + w, y, x + w, y + h, rad);
+                c.arcTo(x + w, y + h, x, y + h, rad);
+                c.arcTo(x, y + h, x, y, rad);
+                c.arcTo(x, y, x + w, y, rad);
+                c.closePath();
+            }
+
+            function drawBouncingMarker(mx, stripY, stripH, emoji, label) {
+                ctx.save();
+                ctx.strokeStyle = '#0f172a';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(mx, stripY - 6);
+                ctx.lineTo(mx, stripY + stripH + 6);
+                ctx.stroke();
+
+                ctx.font = '24px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(emoji, mx, stripY + stripH + 28);
+
+                ctx.fillStyle = '#0f172a';
+                ctx.font = 'bold 12px Fredoka, sans-serif';
+                ctx.fillText(label, mx, stripY + stripH + 44);
+                ctx.restore();
+            }
+
+            function drawStripSegment(x1, y1, x2, y2, color, width) {
+                ctx.save();
+                ctx.strokeStyle = color;
+                ctx.lineWidth = width;
+                ctx.lineCap = 'round';
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            // ==================== 8. TAB 2: 20 KIDS × 5 ROUNDS = 100 STRIPS SHOWDOWN ====================
+            const roundsContainer = document.getElementById('roundsContainer');
+            const miniTriangles = document.getElementById('miniTriangles');
+            const miniTotal = document.getElementById('miniTotal');
+
+            const statTotalTested = document.getElementById('statTotalTested');
+            const statSuccessCount = document.getElementById('statSuccessCount');
+            const statFailCount = document.getElementById('statFailCount');
+            const statRatePct = document.getElementById('statRatePct');
+            const rateProgressBar = document.getElementById('rateProgressBar');
+            const compScore100 = document.getElementById('compScore100');
+            const inputClassScore = document.getElementById('inputClassScore');
+            const showdownMessage = document.getElementById('showdownMessage');
+
+            function build100StripGridDOM() {
+                roundsContainer.innerHTML = '';
+                for (let r = 0; r < 5; r++) {
+                    const rowDiv = document.createElement('div');
+                    rowDiv.className = 'flex items-center gap-2';
+
+                    const badge = document.createElement('div');
+                    badge.className = 'w-20 shrink-0 text-xs font-extrabold text-slate-600 bg-white border border-slate-200 rounded-lg py-1.5 px-2 text-center';
+                    badge.textContent = `Round ${r + 1}`;
+                    rowDiv.appendChild(badge);
+
+                    const cardsGrid = document.createElement('div');
+                    cardsGrid.className = 'flex-grow grid grid-cols-10 sm:grid-cols-20 gap-1';
+                    cardsGrid.style.gridTemplateColumns = 'repeat(20, minmax(0, 1fr))';
+
+                    for (let k = 0; k < 20; k++) {
+                        const idx = r * 20 + k;
+                        const cell = document.createElement('div');
+                        cell.id = `strip-card-${idx}`;
+                        cell.className = 'h-7 rounded-md bg-white border border-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-300 transition-all';
+                        cell.textContent = k + 1;
+                        cell.title = `Round ${r + 1}, Kid #${k + 1}`;
+                        cardsGrid.appendChild(cell);
+                    }
+
+                    rowDiv.appendChild(cardsGrid);
+                    roundsContainer.appendChild(rowDiv);
+                }
+            }
+
+            function recordTrialsToScoreboard(resultsArray) {
+                for (const ok of resultsArray) {
+                    state.totalTrialsAllTime++;
+                    if (ok) state.totalSuccessAllTime++;
+
+                    if (state.gridHistory.length < 100) {
+                        const idx = state.gridHistory.length;
+                        state.gridHistory.push(ok);
+                        const cell = document.getElementById(`strip-card-${idx}`);
+                        if (cell) {
+                            if (ok) {
+                                cell.className = 'strip-cell-pop h-7 rounded-md bg-emerald-500 text-white shadow-sm flex items-center justify-center text-xs font-black';
+                                cell.textContent = '▲';
+                            } else {
+                                cell.className = 'strip-cell-pop h-7 rounded-md bg-rose-200 text-rose-700 flex items-center justify-center text-[10px] font-black';
+                                cell.textContent = '✕';
+                            }
+                        }
+                    }
+                }
+                refreshScoreboardStats();
+            }
+
+            function refreshScoreboardStats() {
+                const total = state.totalTrialsAllTime;
+                const success = state.totalSuccessAllTime;
+                const failed = total - success;
+                const pct = total === 0 ? 0 : (success / total) * 100;
+
+                // Mini footer card in Tab 1
+                const gridSucc = state.gridHistory.filter(Boolean).length;
+                miniTriangles.textContent = gridSucc;
+                miniTotal.textContent = state.gridHistory.length;
+
+                // Tab 2 main counters
+                statTotalTested.textContent = total.toLocaleString();
+                statSuccessCount.textContent = success.toLocaleString();
+                statFailCount.textContent = failed.toLocaleString();
+                statRatePct.textContent = `${pct.toFixed(1)}%`;
+                rateProgressBar.style.width = `${Math.min(100, pct)}%`;
+
+                // Computer's score out of first 100 strips
+                compScore100.textContent = gridSucc;
+                updateShowdownCommentary();
+            }
+
+            function updateShowdownCommentary() {
+                const comp = state.gridHistory.filter(Boolean).length;
+                const rawClass = inputClassScore.value.trim();
+
+                if (rawClass === '') {
+                    showdownMessage.textContent =
+                        '🎯 Math predicts ~19 triangles out of 100 because half the time the coin picks the short piece!';
+                    return;
+                }
+
+                const cls = Math.max(0, Math.min(100, Number(rawClass)));
+                if (state.gridHistory.length < 100) {
+                    showdownMessage.textContent = `🙋 Our Class got ${cls}/100! Click "Run All 100 Strips!" to finish the Computer's 100 tries and compare!`;
+                } else if (cls > comp) {
+                    showdownMessage.textContent = `🏆 Amazing! Our Class (${cls}/100) beat the Computer (${comp}/100)! Both are right around the ~19 math secret!`;
+                } else if (cls < comp) {
+                    showdownMessage.textContent = `💻 Computer (${comp}/100) edged out Our Class (${cls}/100)! Look how close both are to the ~19 math secret!`;
+                } else {
+                    showdownMessage.textContent = `🤝 It's a tie! Both Our Class and the Computer made ${cls}/100 triangles!`;
+                }
+            }
+
+            function clearAllScoreboards() {
+                state.gridHistory = [];
+                state.totalTrialsAllTime = 0;
+                state.totalSuccessAllTime = 0;
+                build100StripGridDOM();
+                refreshScoreboardStats();
+            }
+
+            // Batch Simulation Buttons
+            document.getElementById('btnRunRound20').addEventListener('click', () => {
+                // If 100-grid is already full, reset grid first so the round is visible
+                if (state.gridHistory.length >= 100) {
+                    clearAllScoreboards();
+                }
+                const batch = [];
+                for (let i = 0; i < 20; i++) {
+                    batch.push(simulateVariant2Trial().valid);
+                }
+                recordTrialsToScoreboard(batch);
+                ClassroomAudio.playSuccessChime();
+            });
+
+            document.getElementById('btnRunAll100').addEventListener('click', () => {
+                clearAllScoreboards();
+                const batch = [];
+                for (let i = 0; i < 100; i++) {
+                    batch.push(simulateVariant2Trial().valid);
+                }
+                recordTrialsToScoreboard(batch);
+                ClassroomAudio.playSuccessChime();
+            });
+
+            document.getElementById('btnRunSuper1000').addEventListener('click', () => {
+                const batch = [];
+                for (let i = 0; i < 1000; i++) {
+                    batch.push(simulateVariant2Trial().valid);
+                }
+                recordTrialsToScoreboard(batch);
+                ClassroomAudio.playSuccessChime();
+            });
+
+            document.getElementById('btnClearBoard').addEventListener('click', clearAllScoreboards);
+            inputClassScore.addEventListener('input', updateShowdownCommentary);
+
+            // ==================== 9. TAB NAVIGATION & SOUND TOGGLE ====================
+            function switchTab(tabName) {
+                ClassroomAudio.stopDrumLoop();
+                clearAutoStop();
+
+                if (tabName === 'DEMO') {
+                    viewDemo.classList.remove('hidden');
+                    viewDemo.classList.add('grid');
+                    viewShowdown.classList.add('hidden');
+                    viewShowdown.classList.remove('grid');
+
+                    tabBtnDemo.className = 'px-3.5 py-2 rounded-xl font-display font-bold text-sm sm:text-base bg-indigo-600 text-white shadow transition active:scale-95';
+                    tabBtnShowdown.className = 'px-3.5 py-2 rounded-xl font-display font-bold text-sm sm:text-base text-slate-700 hover:bg-amber-200/60 transition active:scale-95';
+                    resizeDemoCanvas();
+                } else {
+                    viewShowdown.classList.remove('hidden');
+                    viewShowdown.classList.add('grid');
+                    viewDemo.classList.add('hidden');
+                    viewDemo.classList.remove('grid');
+
+                    tabBtnShowdown.className = 'px-3.5 py-2 rounded-xl font-display font-bold text-sm sm:text-base bg-emerald-600 text-white shadow transition active:scale-95';
+                    tabBtnDemo.className = 'px-3.5 py-2 rounded-xl font-display font-bold text-sm sm:text-base text-slate-700 hover:bg-amber-200/60 transition active:scale-95';
+                }
+            }
+
+            tabBtnDemo.addEventListener('click', () => switchTab('DEMO'));
+            tabBtnShowdown.addEventListener('click', () => switchTab('SHOWDOWN'));
+            document.getElementById('btnJumpShowdown').addEventListener('click', () => switchTab('SHOWDOWN'));
+
+            // Sound toggle button
+            const btnToggleSound = document.getElementById('btnToggleSound');
+            const soundIcon = document.getElementById('soundIcon');
+            const soundText = document.getElementById('soundText');
+
+            btnToggleSound.addEventListener('click', () => {
+                ClassroomAudio.enabled = !ClassroomAudio.enabled;
+                if (!ClassroomAudio.enabled) {
+                    ClassroomAudio.stopDrumLoop();
+                    soundIcon.textContent = '🔇';
+                    soundText.textContent = 'Muted';
+                    btnToggleSound.className = 'px-3.5 py-2 rounded-2xl bg-slate-200 hover:bg-slate-300 text-slate-700 border-2 border-slate-300 font-extrabold text-sm flex items-center gap-1.5 transition active:scale-95';
+                } else {
+                    soundIcon.textContent = '🔊';
+                    soundText.textContent = 'Sound ON';
+                    btnToggleSound.className = 'px-3.5 py-2 rounded-2xl bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border-2 border-emerald-300 font-extrabold text-sm flex items-center gap-1.5 transition active:scale-95';
+                }
+            });
+
+            // ==================== 10. INITIALIZATION ====================
+            window.addEventListener('resize', resizeDemoCanvas);
+            window.addEventListener('load', () => {
+                build100StripGridDOM();
+                resizeDemoCanvas();
+                resetDemoStrip();
+                requestAnimationFrame(renderDemoLoop);
+            });
+        })();
+    </script>
+</body>
+</html>
