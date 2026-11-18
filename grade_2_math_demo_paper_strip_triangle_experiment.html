@@ -104,7 +104,7 @@
                             Grade 2 Math Lab (20 cm Strip)
                         </span>
                     </div>
-                    <p class="text-xs sm:text-sm text-slate-600 font-bold">
+                    <p id="headerRuleSubtitle" class="text-xs sm:text-sm text-slate-600 font-bold">
                         Rule: Drum Slide & Tear → Flip Coin (Heads = Left, Tails = Right) → Second Tear → Build Triangle!
                     </p>
                 </div>
@@ -130,6 +130,41 @@
                     <span id="soundIcon" class="text-base">🔊</span>
                     <span id="soundText">Sound ON</span>
                 </button>
+            </div>
+        </div>
+
+        <!-- ==================== TOP RULE & PROBABILITY MODE SWITCHER BAR ==================== -->
+        <div class="bg-gradient-to-r from-indigo-50 via-amber-50 to-emerald-50 border-t-2 border-amber-200/80">
+            <div class="max-w-7xl mx-auto px-4 py-2 flex flex-wrap items-center justify-between gap-2.5">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-xs font-extrabold uppercase tracking-wider text-slate-500">Choose Game Rule:</span>
+                    <div class="inline-flex flex-wrap bg-white p-1 rounded-2xl border-2 border-slate-200 shadow-sm gap-1" role="group" aria-label="Experiment Rule Mode">
+                        <button id="btnModeCoin"
+                            class="px-3 py-1.5 rounded-xl font-display font-bold text-xs sm:text-sm bg-blue-600 text-white shadow transition active:scale-95 flex items-center gap-1.5">
+                            <span>🪙</span>
+                            <span>1. Coin Flip (~19.3%)</span>
+                        </button>
+                        <button id="btnModeMarks"
+                            class="px-3 py-1.5 rounded-xl font-display font-bold text-xs sm:text-sm text-slate-700 hover:bg-purple-100 transition active:scale-95 flex items-center gap-1.5">
+                            <span>✏️</span>
+                            <span>2. Two Marks & Cut (25.0%)</span>
+                        </button>
+                        <button id="btnModeLonger"
+                            class="px-3 py-1.5 rounded-xl font-display font-bold text-xs sm:text-sm text-slate-700 hover:bg-amber-100 transition active:scale-95 flex items-center gap-1.5">
+                            <span>🏆</span>
+                            <span>3. Always Longer (~38.6%)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Live Math Expectation Badge -->
+                <div id="modeExpectationBadge" class="flex items-center gap-2 bg-white px-3.5 py-1.5 rounded-2xl border-2 border-blue-200 shadow-sm text-xs sm:text-sm font-extrabold text-slate-700">
+                    <span class="text-blue-600">🎯 Math Secret:</span>
+                    <span id="modeExpectationText">~19.3% chance → Expect ~19 triangles out of 100</span>
+                    <span id="modeExpectationHint" class="hidden md:inline-block px-2 py-0.5 rounded-lg bg-amber-100 text-amber-900 text-[11px]">
+                        Compare all 3 rules!
+                    </span>
+                </div>
             </div>
         </div>
     </header>
@@ -188,17 +223,10 @@
             <!-- 4-Step Interactive Wizard Panel -->
             <div class="bg-white rounded-3xl border-4 border-amber-200 p-4 shadow-md flex-grow flex flex-col justify-between">
                 <div>
-                    <!-- Step Progress Dots -->
-                    <div class="grid grid-cols-4 gap-1.5 mb-3">
-                        <div id="prog1" class="h-2.5 rounded-full bg-indigo-600 transition-all"></div>
-                        <div id="prog2" class="h-2.5 rounded-full bg-slate-200 transition-all"></div>
-                        <div id="prog3" class="h-2.5 rounded-full bg-slate-200 transition-all"></div>
-                        <div id="prog4" class="h-2.5 rounded-full bg-slate-200 transition-all"></div>
-                    </div>
-
-                    <!-- Giant 3D Coin Display Box -->
-                    <div class="bg-slate-50 rounded-2xl border-2 border-slate-200 p-3 flex items-center gap-4 mb-3">
-                        <div class="coin-perspective shrink-0">
+                    <!-- Step 2 Selector Box: Giant 3D Coin (Mode 1), Two-Marks Tracker (Mode 2), OR Longer Piece Detector (Mode 3) -->
+                    <div id="selectorCardBox" class="bg-slate-50 rounded-2xl border-2 border-slate-200 p-3 flex items-center gap-4 mb-3">
+                        <!-- Mode 1: Giant 3D Coin -->
+                        <div id="coinVisualWrapper" class="coin-perspective shrink-0">
                             <div id="giantCoin" class="giant-coin">
                                 <div class="coin-side coin-heads">
                                     <span class="text-xs font-extrabold tracking-wider opacity-90">HEADS</span>
@@ -210,8 +238,27 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Mode 2: Two Marks & Cut Tracker Badge -->
+                        <div id="marksVisualWrapper" class="hidden shrink-0 w-[112px] h-[112px] rounded-full bg-gradient-to-br from-purple-500 via-indigo-500 to-violet-600 text-white flex flex-col items-center justify-center text-center p-2 shadow-md border-4 border-white">
+                            <span id="marksBadgeIcon" class="text-3xl leading-none">✏️</span>
+                            <span id="marksBadgeLabel" class="font-display text-xs font-bold uppercase tracking-wide mt-1 leading-tight">
+                                Two Marks<br>Tracker
+                            </span>
+                        </div>
+
+                        <!-- Mode 3: Longer Piece Detector Badge -->
+                        <div id="detectorVisualWrapper" class="hidden shrink-0 w-[112px] h-[112px] rounded-full bg-gradient-to-br from-amber-400 via-yellow-400 to-orange-500 text-amber-950 flex flex-col items-center justify-center text-center p-2 shadow-md border-4 border-white">
+                            <span id="detectorIcon" class="text-3xl leading-none">📏</span>
+                            <span id="detectorBadgeLabel" class="font-display text-xs font-bold uppercase tracking-wide mt-1 leading-tight">
+                                Longer<br>Detector
+                            </span>
+                        </div>
+
                         <div>
-                            <div class="text-xs font-extrabold uppercase tracking-wider text-slate-400">Coin Flip Choice</div>
+                            <div id="selectorHeaderLabel" class="text-xs font-extrabold uppercase tracking-wider text-slate-400">
+                                Coin Flip Choice
+                            </div>
                             <div id="coinStatusTitle" class="font-display text-lg font-bold text-slate-700 leading-snug mt-0.5">
                                 Waiting for Step 2...
                             </div>
@@ -342,18 +389,18 @@
                 <div class="mt-4 bg-slate-50 rounded-2xl border-2 border-slate-200 p-3.5">
                     <div class="flex items-center justify-between text-xs sm:text-sm font-extrabold mb-1.5">
                         <span class="text-emerald-700">Computer Success Rate: <span id="statRatePct" class="text-base">0.0%</span></span>
-                        <span class="text-indigo-700">Math Secret: ~19.3%</span>
+                        <span id="mathSecretBarLabel" class="text-indigo-700">Math Secret: ~19.3%</span>
                     </div>
 
                     <div class="relative w-full h-7 bg-slate-200 rounded-full overflow-hidden border border-slate-300">
                         <div id="rateProgressBar" class="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 transition-all duration-300" style="width: 0%"></div>
-                        <!-- 19.3% Math Secret Marker Line -->
-                        <div class="absolute top-0 bottom-0 w-1 bg-indigo-600 z-10" style="left: 19.31%" title="Math Secret: 19.3%"></div>
+                        <!-- Math Secret Marker Line (19.31% in Coin Mode, 38.63% in Longer Mode) -->
+                        <div id="mathSecretMarkerLine" class="absolute top-0 bottom-0 w-1 bg-indigo-600 z-10 transition-all duration-300" style="left: 19.31%" title="Math Secret: 19.3%"></div>
                     </div>
 
                     <div class="flex items-center justify-between text-[11px] font-bold text-slate-500 mt-1.5">
                         <span>0%</span>
-                        <span class="text-indigo-700 font-extrabold">▲ Math Secret (~19 out of 100)</span>
+                        <span id="mathSecretAxisLabel" class="text-indigo-700 font-extrabold">▲ Math Secret (~19 out of 100)</span>
                         <span>100%</span>
                     </div>
                 </div>
@@ -558,6 +605,45 @@
                     gain.connect(this.ctx.destination);
                     osc.start(now);
                     osc.stop(now + 0.36);
+                },
+
+                // Ascending detector scanner chime (Always Longer Mode!)
+                playDetectorWin() {
+                    if (!this.enabled) return;
+                    this.ensureContext();
+                    if (!this.ctx) return;
+                    const now = this.ctx.currentTime;
+                    [587.33, 880.0, 1174.66].forEach((freq, idx) => {
+                        const osc = this.ctx.createOscillator();
+                        const gain = this.ctx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, now + idx * 0.07);
+                        gain.gain.setValueAtTime(0.22, now + idx * 0.07);
+                        gain.gain.exponentialRampToValueAtTime(0.006, now + idx * 0.07 + 0.3);
+                        osc.connect(gain);
+                        gain.connect(this.ctx.destination);
+                        osc.start(now + idx * 0.07);
+                        osc.stop(now + idx * 0.07 + 0.32);
+                    });
+                },
+
+                // Pencil mark pop sound (Two Marks Mode!)
+                playPencilMark() {
+                    if (!this.enabled) return;
+                    this.ensureContext();
+                    if (!this.ctx) return;
+                    const now = this.ctx.currentTime;
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(660, now);
+                    osc.frequency.exponentialRampToValueAtTime(990, now + 0.09);
+                    gain.gain.setValueAtTime(0.24, now);
+                    gain.gain.exponentialRampToValueAtTime(0.008, now + 0.11);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.12);
                 }
             };
 
@@ -566,8 +652,12 @@
             const HALF_CM = 10;
 
             const state = {
+                // Rule Mode: 'COIN' (~19.31%), 'MARKS' (25.00%), vs 'LONGER' (~38.63%)
+                ruleMode: 'COIN',
+
                 // Step-by-step Demo States:
-                // 'STEP1_READY' | 'STEP1_SLIDING' | 'STEP2_COIN' | 'STEP3_READY' | 'STEP3_SLIDING' | 'STEP4_RESULT'
+                // Modes COIN & LONGER: 'STEP1_READY' | 'STEP1_SLIDING' | 'STEP2_COIN' | 'STEP3_READY' | 'STEP3_SLIDING' | 'STEP4_RESULT'
+                // Mode MARKS:          'STEP1_READY' | 'STEP1_SLIDING' | 'MARKS_STEP2_READY' | 'MARKS_STEP2_SLIDING' | 'MARKS_STEP3_CUT' | 'STEP4_RESULT'
                 phase: 'STEP1_READY',
                 markerPos: 0.5,         // [0..1] along active strip
                 markerDir: 1,
@@ -576,8 +666,11 @@
                 autoStopTimeout: null,
                 showHalfwayHelper: false, // Toggleable 10 cm helper line
 
-                cut1Ratio: null,        // First break point [0..1]
+                cut1Ratio: null,        // First break point or Mark 1 [0..1]
+                mark1Ratio: null,       // Mark 1 [0..1] for Mode MARKS
+                mark2Ratio: null,       // Mark 2 [0..1] for Mode MARKS
                 chosenSide: null,       // 'LEFT' or 'RIGHT'
+                pickedShorterInCoin: false, // Detective flag when coin lands on short piece
                 cut2Ratio: null,        // Second break point [0..1] on full strip
                 piecesCm: null,         // [p1, p2, p3] in cm
                 isTriangle: false,
@@ -594,6 +687,14 @@
             const demoCanvas = document.getElementById('demoCanvas');
             const ctx = demoCanvas.getContext('2d');
 
+            const btnModeCoin = document.getElementById('btnModeCoin');
+            const btnModeMarks = document.getElementById('btnModeMarks');
+            const btnModeLonger = document.getElementById('btnModeLonger');
+            const headerRuleSubtitle = document.getElementById('headerRuleSubtitle');
+            const modeExpectationBadge = document.getElementById('modeExpectationBadge');
+            const modeExpectationText = document.getElementById('modeExpectationText');
+            const modeExpectationHint = document.getElementById('modeExpectationHint');
+
             const tabBtnDemo = document.getElementById('tabBtnDemo');
             const tabBtnShowdown = document.getElementById('tabBtnShowdown');
             const viewDemo = document.getElementById('viewDemo');
@@ -603,6 +704,15 @@
             const btnToggleHelper = document.getElementById('btnToggleHelper');
             const helperEyeIcon = document.getElementById('helperEyeIcon');
             const helperToggleText = document.getElementById('helperToggleText');
+
+            const coinVisualWrapper = document.getElementById('coinVisualWrapper');
+            const marksVisualWrapper = document.getElementById('marksVisualWrapper');
+            const marksBadgeIcon = document.getElementById('marksBadgeIcon');
+            const marksBadgeLabel = document.getElementById('marksBadgeLabel');
+            const detectorVisualWrapper = document.getElementById('detectorVisualWrapper');
+            const detectorIcon = document.getElementById('detectorIcon');
+            const detectorBadgeLabel = document.getElementById('detectorBadgeLabel');
+            const selectorHeaderLabel = document.getElementById('selectorHeaderLabel');
 
             const giantCoin = document.getElementById('giantCoin');
             const coinStatusTitle = document.getElementById('coinStatusTitle');
@@ -626,21 +736,48 @@
                 document.getElementById('pieceVal1'),
                 document.getElementById('pieceVal2')
             ];
-            const progBars = [
-                document.getElementById('prog1'),
-                document.getElementById('prog2'),
-                document.getElementById('prog3'),
-                document.getElementById('prog4')
-            ];
+            const progBars = [];
 
-            // ==================== 4. VARIANT 2 MATH SIMULATION ====================
-            function simulateVariant2Trial() {
+            // ==================== 4. MATH SIMULATION (COIN vs TWO MARKS vs ALWAYS LONGER) ====================
+            function simulateTrialByActiveMode() {
+                if (state.ruleMode === 'MARKS') {
+                    // Two independent marks uniformly across the ENTIRE 20 cm strip -> exact 1/4 (25.0%)!
+                    const m1 = Math.random();
+                    const m2 = Math.random();
+                    const [c1, c2] = [m1, m2].sort((a, b) => a - b);
+                    const p1 = c1 * STRIP_CM;
+                    const p2 = (c2 - c1) * STRIP_CM;
+                    const p3 = (1 - c2) * STRIP_CM;
+                    const valid = p1 < HALF_CM && p2 < HALF_CM && p3 < HALF_CM;
+
+                    return {
+                        mark1Ratio: m1,
+                        mark2Ratio: m2,
+                        cut1Ratio: c1,
+                        cut2Ratio: c2,
+                        chosenSide: null,
+                        piecesCm: [p1, p2, p3],
+                        valid
+                    };
+                }
+
                 // Step 1: First break point x uniformly in (0, 1)
-                const x = 0.04 + Math.random() * 0.92;
-                // Step 2: Coin flip -> 50% Heads (LEFT), 50% Tails (RIGHT)
-                const pickLeft = Math.random() < 0.5;
+                const x = Math.random();
+                const leftLen = x;
+                const rightLen = 1 - x;
+
+                // Step 2: Pick piece according to active ruleMode
+                let pickLeft;
+                if (state.ruleMode === 'LONGER') {
+                    // Always choose the longer piece! (~38.63%)
+                    pickLeft = leftLen >= rightLen;
+                } else {
+                    // Coin flip: 50% Heads (LEFT), 50% Tails (RIGHT) (~19.31%)
+                    pickLeft = Math.random() < 0.5;
+                }
+
                 // Step 3: Second break point u uniformly in chosen piece
-                const u = 0.05 + Math.random() * 0.90;
+                const u = Math.random();
 
                 let c1, c2;
                 if (pickLeft) {
@@ -680,17 +817,44 @@
                 state.markerPos = 0.5;
                 state.markerDir = 1;
                 state.cut1Ratio = null;
+                state.mark1Ratio = null;
+                state.mark2Ratio = null;
                 state.chosenSide = null;
+                state.pickedShorterInCoin = false;
                 state.cut2Ratio = null;
                 state.piecesCm = null;
                 state.isTriangle = false;
                 state.buildAnimProgress = 0;
                 state.confetti = [];
 
-                giantCoin.className = 'giant-coin';
-                coinStatusTitle.textContent = 'Waiting for Step 2...';
-                coinStatusTitle.className = 'font-display text-lg font-bold text-slate-700 leading-snug mt-0.5';
-                coinStatusSub.innerHTML = 'Heads picks LEFT hand.<br>Tails picks RIGHT hand.';
+                coinVisualWrapper.classList.add('hidden');
+                marksVisualWrapper.classList.add('hidden');
+                detectorVisualWrapper.classList.add('hidden');
+
+                if (state.ruleMode === 'COIN') {
+                    coinVisualWrapper.classList.remove('hidden');
+                    selectorHeaderLabel.textContent = 'Coin Flip Choice';
+                    giantCoin.className = 'giant-coin';
+                    coinStatusTitle.textContent = 'Waiting for Step 2...';
+                    coinStatusTitle.className = 'font-display text-lg font-bold text-slate-700 leading-snug mt-0.5';
+                    coinStatusSub.innerHTML = 'Heads picks LEFT hand.<br>Tails picks RIGHT hand.';
+                } else if (state.ruleMode === 'MARKS') {
+                    marksVisualWrapper.classList.remove('hidden');
+                    selectorHeaderLabel.textContent = 'Two Pencil Marks';
+                    marksBadgeIcon.textContent = '✏️';
+                    marksBadgeLabel.innerHTML = '0 of 2<br>Marks';
+                    coinStatusTitle.textContent = 'No Marks Placed Yet';
+                    coinStatusTitle.className = 'font-display text-lg font-bold text-purple-700 leading-snug mt-0.5';
+                    coinStatusSub.innerHTML = 'Slide across the <strong>WHOLE 20 cm strip</strong> twice, make 2 marks, then cut both!';
+                } else {
+                    detectorVisualWrapper.classList.remove('hidden');
+                    selectorHeaderLabel.textContent = 'Longer Piece Detector';
+                    detectorIcon.textContent = '📏';
+                    detectorBadgeLabel.innerHTML = 'Longer<br>Detector';
+                    coinStatusTitle.textContent = 'No Coin Needed!';
+                    coinStatusTitle.className = 'font-display text-lg font-bold text-amber-700 leading-snug mt-0.5';
+                    coinStatusSub.innerHTML = 'We always measure and pick the <strong>LONGER</strong> piece!';
+                }
 
                 updatePieceCards(null);
                 syncDemoUI();
@@ -698,7 +862,7 @@
 
             function startSlidingPhase(targetPhase) {
                 state.phase = targetPhase;
-                state.markerPos = 0.15 + Math.random() * 0.7;
+                state.markerPos = 0.12 + Math.random() * 0.76;
                 state.markerDir = Math.random() < 0.5 ? 1 : -1;
                 state.markerSpeed = 0.015;
                 state.speedChangeTimer = 0;
@@ -709,11 +873,58 @@
                 const autoDuration = 1800 + Math.random() * 1400;
                 state.autoStopTimeout = setTimeout(() => {
                     if (state.phase === 'STEP1_SLIDING') {
-                        performFirstTear(state.markerPos);
+                        if (state.ruleMode === 'MARKS') {
+                            placeFirstPencilMark(state.markerPos);
+                        } else {
+                            performFirstTear(state.markerPos);
+                        }
+                    } else if (state.phase === 'MARKS_STEP2_SLIDING') {
+                        placeSecondPencilMark(state.markerPos);
                     } else if (state.phase === 'STEP3_SLIDING') {
                         performSecondTear(state.markerPos);
                     }
                 }, autoDuration);
+
+                syncDemoUI();
+            }
+
+            function placeFirstPencilMark(posRatio) {
+                ClassroomAudio.stopDrumLoop();
+                clearAutoStop();
+                ClassroomAudio.playPencilMark();
+
+                state.mark1Ratio = Math.max(0.03, Math.min(0.97, posRatio));
+                state.phase = 'MARKS_STEP2_READY';
+
+                const m1Cm = (state.mark1Ratio * STRIP_CM).toFixed(1);
+                marksBadgeIcon.textContent = '🚩';
+                marksBadgeLabel.innerHTML = `Mark 1<br>@ ${m1Cm} cm`;
+                coinStatusTitle.textContent = `Mark 1 Placed at ${m1Cm} cm!`;
+                coinStatusTitle.className = 'font-display text-lg font-bold text-purple-700 leading-snug mt-0.5';
+                coinStatusSub.innerHTML = '⚠️ <strong>Don’t cut yet!</strong> Slide across the <strong>WHOLE 20 cm strip</strong> again for Mark 2!';
+
+                syncDemoUI();
+            }
+
+            function placeSecondPencilMark(posRatio) {
+                ClassroomAudio.stopDrumLoop();
+                clearAutoStop();
+                ClassroomAudio.playPencilMark();
+
+                let m2 = Math.max(0.03, Math.min(0.97, posRatio));
+                if (Math.abs(m2 - state.mark1Ratio) < 0.015) {
+                    m2 = Math.min(0.97, Math.max(0.03, state.mark1Ratio + (state.mark1Ratio < 0.5 ? 0.03 : -0.03)));
+                }
+                state.mark2Ratio = m2;
+                state.phase = 'MARKS_STEP3_CUT';
+
+                const m1Cm = (state.mark1Ratio * STRIP_CM).toFixed(1);
+                const m2Cm = (state.mark2Ratio * STRIP_CM).toFixed(1);
+                marksBadgeIcon.textContent = '✂️';
+                marksBadgeLabel.innerHTML = `2 Marks<br>Ready!`;
+                coinStatusTitle.textContent = `Mark 1 (${m1Cm} cm) & Mark 2 (${m2Cm} cm)!`;
+                coinStatusTitle.className = 'font-display text-lg font-bold text-indigo-700 leading-snug mt-0.5';
+                coinStatusSub.innerHTML = 'Both marks are on the whole 20 cm strip! Ready to cut at both marks!';
 
                 syncDemoUI();
             }
@@ -725,52 +936,88 @@
 
                 state.cut1Ratio = Math.max(0.05, Math.min(0.95, posRatio));
                 state.phase = 'STEP2_COIN';
+
+                const leftCm = (state.cut1Ratio * STRIP_CM).toFixed(1);
+                const rightCm = ((1 - state.cut1Ratio) * STRIP_CM).toFixed(1);
+
+                if (state.ruleMode === 'COIN') {
+                    coinStatusTitle.textContent = `Left: ${leftCm} cm | Right: ${rightCm} cm`;
+                    coinStatusTitle.className = 'font-display text-lg font-bold text-slate-800 leading-snug mt-0.5';
+                    coinStatusSub.innerHTML = 'Ready to flip! <strong>Heads = Left</strong>, <strong>Tails = Right</strong>.';
+                } else {
+                    const leftLonger = state.cut1Ratio >= 0.5;
+                    detectorIcon.textContent = '🔍';
+                    detectorBadgeLabel.innerHTML = leftLonger ? 'LEFT<br>Longer' : 'RIGHT<br>Longer';
+                    coinStatusTitle.textContent = `Left: ${leftCm} cm | Right: ${rightCm} cm`;
+                    coinStatusTitle.className = 'font-display text-lg font-bold text-amber-800 leading-snug mt-0.5';
+                    coinStatusSub.innerHTML = `<strong>${leftLonger ? 'LEFT' : 'RIGHT'}</strong> piece is longer! Click below to select it.`;
+                }
+
                 syncDemoUI();
             }
 
-            function performGiantCoinFlip() {
-                if (state.phase !== 'STEP2_COIN') return;
-                ClassroomAudio.playCoinClink();
+            function performPieceSelectionStep() {
+                const leftCm = state.cut1Ratio * STRIP_CM;
+                const rightCm = (1 - state.cut1Ratio) * STRIP_CM;
 
-                const isHeads = Math.random() < 0.5;
-                state.chosenSide = isHeads ? 'LEFT' : 'RIGHT';
+                if (state.ruleMode === 'COIN') {
+                    ClassroomAudio.playCoinClink();
+                    const pickLeft = Math.random() < 0.5;
+                    state.chosenSide = pickLeft ? 'LEFT' : 'RIGHT';
+                    const chosenCm = pickLeft ? leftCm : rightCm;
+                    const otherCm = pickLeft ? rightCm : leftCm;
+                    state.pickedShorterInCoin = chosenCm < otherCm;
 
-                giantCoin.className = 'giant-coin';
-                void giantCoin.offsetWidth; // Force reflow to restart CSS animation
-                giantCoin.classList.add(isHeads ? 'anim-heads' : 'anim-tails');
+                    giantCoin.className = 'giant-coin';
+                    void giantCoin.offsetWidth;
+                    giantCoin.classList.add(pickLeft ? 'anim-heads' : 'anim-tails');
 
-                if (isHeads) {
-                    coinStatusTitle.textContent = 'HEADS! Pick LEFT Piece!';
-                    coinStatusTitle.className = 'font-display text-lg font-bold text-blue-600 leading-snug mt-0.5';
-                    coinStatusSub.textContent = `Keeping LEFT (${(state.cut1Ratio * STRIP_CM).toFixed(1)} cm). Setting RIGHT piece aside.`;
+                    coinStatusTitle.textContent = pickLeft ? 'HEADS! Pick LEFT Piece!' : 'TAILS! Pick RIGHT Piece!';
+                    coinStatusTitle.className = pickLeft
+                        ? 'font-display text-lg font-bold text-blue-600 leading-snug mt-0.5'
+                        : 'font-display text-lg font-bold text-orange-600 leading-snug mt-0.5';
+                    coinStatusSub.textContent = state.pickedShorterInCoin
+                        ? `Coin picked the SHORT ${state.chosenSide} piece (${chosenCm.toFixed(1)} cm)!`
+                        : `Coin picked the LONG ${state.chosenSide} piece (${chosenCm.toFixed(1)} cm)!`;
                 } else {
-                    coinStatusTitle.textContent = 'TAILS! Pick RIGHT Piece!';
-                    coinStatusTitle.className = 'font-display text-lg font-bold text-orange-600 leading-snug mt-0.5';
-                    coinStatusSub.textContent = `Keeping RIGHT (${((1 - state.cut1Ratio) * STRIP_CM).toFixed(1)} cm). Setting LEFT piece aside.`;
+                    ClassroomAudio.playDetectorWin();
+                    const pickLeft = leftCm >= rightCm;
+                    state.chosenSide = pickLeft ? 'LEFT' : 'RIGHT';
+                    state.pickedShorterInCoin = false;
+                    const chosenCm = pickLeft ? leftCm : rightCm;
+                    const otherCm = pickLeft ? rightCm : leftCm;
+
+                    detectorIcon.textContent = '🏆';
+                    detectorBadgeLabel.innerHTML = `${state.chosenSide}<br>WINS!`;
+                    coinStatusTitle.textContent = `Picked Longer ${state.chosenSide} (${chosenCm.toFixed(1)} cm)!`;
+                    coinStatusTitle.className = 'font-display text-lg font-bold text-emerald-700 leading-snug mt-0.5';
+                    coinStatusSub.textContent = `Set aside the shorter ${otherCm.toFixed(1)} cm piece.`;
                 }
 
-                // Automatically advance to Step 3 ready state right as coin lands
                 state.phase = 'STEP3_READY';
                 syncDemoUI();
             }
 
-            function performSecondTear(localRatio) {
+            function performSecondTear(uRatio) {
                 ClassroomAudio.stopDrumLoop();
                 clearAutoStop();
                 ClassroomAudio.playTear();
 
-                const u = Math.max(0.06, Math.min(0.94, localRatio));
+                const u = Math.max(0.05, Math.min(0.95, uRatio));
+                const x = state.cut1Ratio;
                 let c1, c2;
+
                 if (state.chosenSide === 'LEFT') {
-                    c1 = state.cut1Ratio * u;
-                    c2 = state.cut1Ratio;
+                    c1 = x * u;
+                    c2 = x;
                 } else {
-                    c1 = state.cut1Ratio;
-                    c2 = state.cut1Ratio + (1 - state.cut1Ratio) * u;
+                    c1 = x;
+                    c2 = x + (1 - x) * u;
                 }
 
                 state.cut1Ratio = c1;
                 state.cut2Ratio = c2;
+
                 const p1 = c1 * STRIP_CM;
                 const p2 = (c2 - c1) * STRIP_CM;
                 const p3 = (1 - c2) * STRIP_CM;
@@ -791,12 +1038,43 @@
                 }
             }
 
+            function cutAtBothMarks() {
+                ClassroomAudio.playTear();
+                setTimeout(() => ClassroomAudio.playTear(), 110);
+
+                const [c1, c2] = [state.mark1Ratio, state.mark2Ratio].sort((a, b) => a - b);
+                state.cut1Ratio = c1;
+                state.cut2Ratio = c2;
+
+                const p1 = c1 * STRIP_CM;
+                const p2 = (c2 - c1) * STRIP_CM;
+                const p3 = (1 - c2) * STRIP_CM;
+                state.piecesCm = [p1, p2, p3];
+                state.isTriangle = p1 < HALF_CM && p2 < HALF_CM && p3 < HALF_CM;
+                state.phase = 'STEP4_RESULT';
+                state.buildAnimProgress = 0;
+
+                marksBadgeIcon.textContent = state.isTriangle ? '🎉' : '📏';
+                marksBadgeLabel.innerHTML = state.isTriangle ? 'Triangle<br>Made!' : 'Cut<br>Complete';
+
+                updatePieceCards(state.piecesCm);
+                syncDemoUI();
+                recordTrialsToScoreboard([state.isTriangle]);
+
+                if (state.isTriangle) {
+                    ClassroomAudio.playSuccessChime();
+                    triggerConfetti();
+                } else {
+                    ClassroomAudio.playGentleBoing();
+                }
+            }
+
             function syncDemoUI() {
                 // Reset progress dots
                 const stepIndex =
                     state.phase.startsWith('STEP1') ? 1 :
-                    state.phase === 'STEP2_COIN' ? 2 :
-                    state.phase.startsWith('STEP3') ? 3 : 4;
+                    (state.phase === 'STEP2_COIN' || state.phase.startsWith('MARKS_STEP2')) ? 2 :
+                    (state.phase.startsWith('STEP3') || state.phase === 'MARKS_STEP3_CUT') ? 3 : 4;
 
                 progBars.forEach((bar, idx) => {
                     bar.className = idx < stepIndex
@@ -805,50 +1083,134 @@
                 });
 
                 if (state.phase === 'STEP1_READY') {
-                    stageStepPill.textContent = 'Step 1 of 4: Drum Slide & First Tear';
-                    stageStepPill.className = 'px-3.5 py-1 rounded-full bg-indigo-100 text-indigo-800 font-display font-bold text-sm';
+                    if (state.ruleMode === 'MARKS') {
+                        stageStepPill.textContent = 'Step 1 of 4: Slide & Make Mark 1 (Don’t Cut!)';
+                        stageStepPill.className = 'px-3.5 py-1 rounded-full bg-purple-100 text-purple-800 font-display font-bold text-sm';
 
-                    instructionBox.className = 'rounded-2xl bg-indigo-50 border-2 border-indigo-200 p-3.5 text-slate-800';
-                    instructionTitle.className = 'font-display text-base sm:text-lg font-bold text-indigo-900';
-                    instructionTitle.textContent = 'Step 1: First Drum Slide & Tear';
-                    instructionBody.innerHTML = 'Close your eyes! Click <strong>Play Drum & Slide</strong>, then click <strong>Stop Drum & Tear!</strong> (or drag on the strip).';
+                        instructionBox.className = 'rounded-2xl bg-purple-50 border-2 border-purple-200 p-3.5 text-slate-800';
+                        instructionTitle.className = 'font-display text-base sm:text-lg font-bold text-purple-900';
+                        instructionTitle.textContent = 'Step 1: Slide Across Whole Strip & Make Mark 1';
+                        instructionBody.innerHTML = 'Click <strong>Play Drum & Slide</strong>, then hit <strong>Stop & Make Mark 1!</strong> (or click anywhere on the strip). <strong>Don’t cut yet!</strong>';
 
-                    btnPrimaryIcon.textContent = '🥁';
-                    btnPrimaryLabel.textContent = 'Play Drum & Slide';
-                    btnPrimaryStep.className = 'w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-display font-bold text-lg sm:text-xl shadow-lg shadow-indigo-200 transition transform active:scale-95 flex items-center justify-center gap-2';
+                        btnPrimaryIcon.textContent = '✏️';
+                        btnPrimaryLabel.textContent = 'Play Drum & Slide (Mark 1)';
+                        btnPrimaryStep.className = 'w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-display font-bold text-lg sm:text-xl shadow-lg shadow-purple-200 transition transform active:scale-95 flex items-center justify-center gap-2';
+                    } else {
+                        stageStepPill.textContent = 'Step 1 of 4: Drum Slide & First Tear';
+                        stageStepPill.className = 'px-3.5 py-1 rounded-full bg-indigo-100 text-indigo-800 font-display font-bold text-sm';
+
+                        instructionBox.className = 'rounded-2xl bg-indigo-50 border-2 border-indigo-200 p-3.5 text-slate-800';
+                        instructionTitle.className = 'font-display text-base sm:text-lg font-bold text-indigo-900';
+                        instructionTitle.textContent = 'Step 1: First Drum Slide & Tear';
+                        instructionBody.innerHTML = 'Close your eyes! Click <strong>Play Drum & Slide</strong>, then click <strong>Stop Drum & Tear!</strong> (or drag on the strip).';
+
+                        btnPrimaryIcon.textContent = '🥁';
+                        btnPrimaryLabel.textContent = 'Play Drum & Slide';
+                        btnPrimaryStep.className = 'w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-display font-bold text-lg sm:text-xl shadow-lg shadow-indigo-200 transition transform active:scale-95 flex items-center justify-center gap-2';
+                    }
 
                 } else if (state.phase === 'STEP1_SLIDING') {
-                    stageStepPill.textContent = 'Step 1 of 4: Sliding... Ready to Stop!';
-                    stageStepPill.className = 'px-3.5 py-1 rounded-full bg-rose-100 text-rose-700 font-display font-bold text-sm animate-pulse';
+                    if (state.ruleMode === 'MARKS') {
+                        stageStepPill.textContent = 'Step 1 of 4: Sliding Across Whole Strip...';
+                        stageStepPill.className = 'px-3.5 py-1 rounded-full bg-purple-100 text-purple-700 font-display font-bold text-sm animate-pulse';
 
-                    instructionTitle.textContent = '🥁 Drum is beating! Fingers sliding...';
-                    instructionBody.innerHTML = 'Shout <strong>"STOP!"</strong> and press the button below to tear the strip into Left & Right pieces!';
+                        instructionTitle.textContent = '🥁 Drum is beating! Sliding for Mark 1...';
+                        instructionBody.innerHTML = 'Shout <strong>"STOP!"</strong> and press below to place <strong>Mark 1</strong> without cutting!';
 
-                    btnPrimaryIcon.textContent = '✋';
-                    btnPrimaryLabel.textContent = 'Stop Drum & Tear!';
-                    btnPrimaryStep.className = 'w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 text-white font-display font-bold text-lg sm:text-xl shadow-lg shadow-rose-200 transition transform active:scale-95 flex items-center justify-center gap-2';
+                        btnPrimaryIcon.textContent = '🚩';
+                        btnPrimaryLabel.textContent = 'Stop & Make Mark 1!';
+                        btnPrimaryStep.className = 'w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-display font-bold text-lg sm:text-xl shadow-lg shadow-purple-200 transition transform active:scale-95 flex items-center justify-center gap-2';
+                    } else {
+                        stageStepPill.textContent = 'Step 1 of 4: Sliding... Ready to Stop!';
+                        stageStepPill.className = 'px-3.5 py-1 rounded-full bg-rose-100 text-rose-700 font-display font-bold text-sm animate-pulse';
 
-                } else if (state.phase === 'STEP2_COIN') {
-                    stageStepPill.textContent = 'Step 2 of 4: Giant Coin Flip!';
-                    stageStepPill.className = 'px-3.5 py-1 rounded-full bg-amber-100 text-amber-800 font-display font-bold text-sm';
+                        instructionTitle.textContent = '🥁 Drum is beating! Fingers sliding...';
+                        instructionBody.innerHTML = 'Shout <strong>"STOP!"</strong> and press the button below to tear the strip into Left & Right pieces!';
+
+                        btnPrimaryIcon.textContent = '✋';
+                        btnPrimaryLabel.textContent = 'Stop Drum & Tear!';
+                        btnPrimaryStep.className = 'w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 text-white font-display font-bold text-lg sm:text-xl shadow-lg shadow-rose-200 transition transform active:scale-95 flex items-center justify-center gap-2';
+                    }
+
+                } else if (state.phase === 'MARKS_STEP2_READY') {
+                    stageStepPill.textContent = 'Step 2 of 4: Slide Full Strip Again → Mark 2';
+                    stageStepPill.className = 'px-3.5 py-1 rounded-full bg-indigo-100 text-indigo-800 font-display font-bold text-sm';
 
                     instructionBox.className = 'rounded-2xl bg-amber-50 border-2 border-amber-300 p-3.5 text-slate-800';
                     instructionTitle.className = 'font-display text-base sm:text-lg font-bold text-amber-900';
-                    instructionTitle.textContent = 'Step 2: Flip the Giant Coin!';
-                    instructionBody.innerHTML = 'Hold Left piece in Left hand, Right piece in Right hand. Flip the coin: <strong>Heads = Left</strong>, <strong>Tails = Right</strong>!';
+                    instructionTitle.textContent = 'Step 2: Slide Across the WHOLE 20 cm Strip Again!';
+                    instructionBody.innerHTML = 'Important rule: Slide across the <strong>entire 20 cm strip</strong> (not just one side!) and stop to place <strong>Mark 2</strong>.';
 
-                    btnPrimaryIcon.textContent = '🪙';
-                    btnPrimaryLabel.textContent = 'Flip Giant Coin!';
-                    btnPrimaryStep.className = 'w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-display font-bold text-lg sm:text-xl shadow-lg shadow-amber-200 transition transform active:scale-95 flex items-center justify-center gap-2';
+                    btnPrimaryIcon.textContent = '✏️';
+                    btnPrimaryLabel.textContent = 'Slide Full Strip & Mark 2';
+                    btnPrimaryStep.className = 'w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-display font-bold text-lg sm:text-xl shadow-lg shadow-indigo-200 transition transform active:scale-95 flex items-center justify-center gap-2';
+
+                } else if (state.phase === 'MARKS_STEP2_SLIDING') {
+                    stageStepPill.textContent = 'Step 2 of 4: Sliding Full Strip for Mark 2...';
+                    stageStepPill.className = 'px-3.5 py-1 rounded-full bg-rose-100 text-rose-700 font-display font-bold text-sm animate-pulse';
+
+                    instructionTitle.textContent = '🥁 Sliding across the WHOLE 20 cm strip!';
+                    instructionBody.innerHTML = 'Press <strong>Stop & Make Mark 2!</strong> to place your second pencil mark on the intact strip.';
+
+                    btnPrimaryIcon.textContent = '🚩';
+                    btnPrimaryLabel.textContent = 'Stop & Make Mark 2!';
+                    btnPrimaryStep.className = 'w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-rose-500 to-purple-600 hover:from-rose-600 hover:to-purple-700 text-white font-display font-bold text-lg sm:text-xl shadow-lg shadow-rose-200 transition transform active:scale-95 flex items-center justify-center gap-2';
+
+                } else if (state.phase === 'MARKS_STEP3_CUT') {
+                    stageStepPill.textContent = 'Step 3 of 4: Cut at Both Marks!';
+                    stageStepPill.className = 'px-3.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-display font-bold text-sm';
+
+                    instructionBox.className = 'rounded-2xl bg-purple-50 border-2 border-purple-300 p-3.5 text-slate-800';
+                    instructionTitle.className = 'font-display text-base sm:text-lg font-bold text-purple-900';
+                    instructionTitle.textContent = 'Step 3: Snip / Tear at Both Marks!';
+                    instructionBody.innerHTML = 'Both marks are on the whole 20 cm strip! Click <strong>Cut at Both Marks!</strong> to split into 3 pieces and test if they form a triangle.';
+
+                    btnPrimaryIcon.textContent = '✂️';
+                    btnPrimaryLabel.textContent = 'Cut at Both Marks!';
+                    btnPrimaryStep.className = 'w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-display font-bold text-lg sm:text-xl shadow-lg shadow-emerald-200 transition transform active:scale-95 flex items-center justify-center gap-2';
+
+                } else if (state.phase === 'STEP2_COIN') {
+                    if (state.ruleMode === 'COIN') {
+                        stageStepPill.textContent = 'Step 2 of 4: Giant Coin Flip!';
+                        stageStepPill.className = 'px-3.5 py-1 rounded-full bg-amber-100 text-amber-800 font-display font-bold text-sm';
+
+                        instructionBox.className = 'rounded-2xl bg-amber-50 border-2 border-amber-300 p-3.5 text-slate-800';
+                        instructionTitle.className = 'font-display text-base sm:text-lg font-bold text-amber-900';
+                        instructionTitle.textContent = 'Step 2: Flip the Giant Coin!';
+                        instructionBody.innerHTML = 'Hold Left piece in Left hand, Right piece in Right hand. Flip the coin: <strong>Heads = Left</strong>, <strong>Tails = Right</strong>!';
+
+                        btnPrimaryIcon.textContent = '🪙';
+                        btnPrimaryLabel.textContent = 'Flip Giant Coin!';
+                        btnPrimaryStep.className = 'w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-display font-bold text-lg sm:text-xl shadow-lg shadow-amber-200 transition transform active:scale-95 flex items-center justify-center gap-2';
+                    } else {
+                        stageStepPill.textContent = 'Step 2 of 4: Compare & Pick Longer Piece!';
+                        stageStepPill.className = 'px-3.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-display font-bold text-sm';
+
+                        instructionBox.className = 'rounded-2xl bg-amber-50 border-2 border-amber-300 p-3.5 text-slate-800';
+                        instructionTitle.className = 'font-display text-base sm:text-lg font-bold text-amber-900';
+                        instructionTitle.textContent = 'Step 2: Throw Away the Coin — Pick Longer!';
+                        instructionBody.innerHTML = 'Hold both pieces side by side! Which hand has the <strong>LONGER</strong> piece? Let’s pick the longer one!';
+
+                        btnPrimaryIcon.textContent = '🏆';
+                        btnPrimaryLabel.textContent = 'Pick the Longer Piece!';
+                        btnPrimaryStep.className = 'w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-amber-950 font-display font-bold text-lg sm:text-xl shadow-lg shadow-amber-200 transition transform active:scale-95 flex items-center justify-center gap-2';
+                    }
 
                 } else if (state.phase === 'STEP3_READY') {
                     stageStepPill.textContent = 'Step 3 of 4: Second Drum Slide & Tear';
                     stageStepPill.className = 'px-3.5 py-1 rounded-full bg-purple-100 text-purple-800 font-display font-bold text-sm';
 
-                    instructionBox.className = 'rounded-2xl bg-purple-50 border-2 border-purple-200 p-3.5 text-slate-800';
-                    instructionTitle.className = 'font-display text-base sm:text-lg font-bold text-purple-900';
-                    instructionTitle.textContent = `Step 3: Tear the ${state.chosenSide} Piece!`;
-                    instructionBody.innerHTML = `We kept the <strong>${state.chosenSide}</strong> piece! Now drum-slide and tear it into two so we have <strong>3 pieces total</strong>.`;
+                    if (state.ruleMode === 'COIN' && state.pickedShorterInCoin) {
+                        instructionBox.className = 'rounded-2xl bg-rose-50 border-2 border-rose-300 p-3.5 text-rose-950';
+                        instructionTitle.className = 'font-display text-base sm:text-lg font-bold text-rose-800';
+                        instructionTitle.textContent = `🕵️ Detective Clue: Coin picked the SHORT ${state.chosenSide} piece!`;
+                        instructionBody.innerHTML = `Even before we tear the <strong>${state.chosenSide}</strong> piece, the untouched piece is already <strong>longer than 10 cm</strong>! Let's tear and verify!`;
+                    } else {
+                        instructionBox.className = 'rounded-2xl bg-purple-50 border-2 border-purple-200 p-3.5 text-slate-800';
+                        instructionTitle.className = 'font-display text-base sm:text-lg font-bold text-purple-900';
+                        instructionTitle.textContent = `Step 3: Tear the Longer ${state.chosenSide} Piece!`;
+                        instructionBody.innerHTML = `We kept the longer <strong>${state.chosenSide}</strong> piece! Now drum-slide and tear it into two so we have <strong>3 pieces total</strong>.`;
+                    }
 
                     btnPrimaryIcon.textContent = '🥁';
                     btnPrimaryLabel.textContent = 'Drum & Second Tear!';
@@ -879,7 +1241,11 @@
                         instructionBox.className = 'rounded-2xl bg-rose-50 border-2 border-rose-400 p-3.5 text-rose-950';
                         instructionTitle.className = 'font-display text-base sm:text-lg font-bold text-rose-800';
                         instructionTitle.textContent = `❌ Oh no! The ${longest} cm piece is too long!`;
-                        instructionBody.innerHTML = `The <strong>${longest} cm</strong> piece is longer than half (<strong>10 cm</strong>), so the other two pieces can't reach!`;
+                        instructionBody.innerHTML = state.ruleMode === 'LONGER'
+                            ? `Even though we picked the longer piece, our second tear left a <strong>${longest} cm</strong> piece (> 10 cm)!`
+                            : state.ruleMode === 'MARKS'
+                            ? `Our two marks left a <strong>${longest} cm</strong> section longer than half (<strong>10 cm</strong>), so the other two pieces can't reach!`
+                            : `The <strong>${longest} cm</strong> piece is longer than half (<strong>10 cm</strong>), so the other two pieces can't reach!`;
                     }
 
                     btnPrimaryIcon.textContent = '🔄';
@@ -915,9 +1281,19 @@
                 if (state.phase === 'STEP1_READY') {
                     startSlidingPhase('STEP1_SLIDING');
                 } else if (state.phase === 'STEP1_SLIDING') {
-                    performFirstTear(state.markerPos);
+                    if (state.ruleMode === 'MARKS') {
+                        placeFirstPencilMark(state.markerPos);
+                    } else {
+                        performFirstTear(state.markerPos);
+                    }
+                } else if (state.phase === 'MARKS_STEP2_READY') {
+                    startSlidingPhase('MARKS_STEP2_SLIDING');
+                } else if (state.phase === 'MARKS_STEP2_SLIDING') {
+                    placeSecondPencilMark(state.markerPos);
+                } else if (state.phase === 'MARKS_STEP3_CUT') {
+                    cutAtBothMarks();
                 } else if (state.phase === 'STEP2_COIN') {
-                    performGiantCoinFlip();
+                    performPieceSelectionStep();
                 } else if (state.phase === 'STEP3_READY') {
                     startSlidingPhase('STEP3_SLIDING');
                 } else if (state.phase === 'STEP3_SLIDING') {
@@ -931,18 +1307,55 @@
             document.getElementById('btnQuickSim1').addEventListener('click', () => {
                 ClassroomAudio.stopDrumLoop();
                 clearAutoStop();
-                const trial = simulateVariant2Trial();
-                state.cut1Ratio = trial.cut1Ratio;
-                state.chosenSide = trial.chosenSide;
+                const trial = simulateTrialByActiveMode();
 
-                giantCoin.className = 'giant-coin';
-                void giantCoin.offsetWidth;
-                giantCoin.classList.add(trial.chosenSide === 'LEFT' ? 'anim-heads' : 'anim-tails');
-                coinStatusTitle.textContent = trial.chosenSide === 'LEFT' ? 'HEADS! Pick LEFT Piece!' : 'TAILS! Pick RIGHT Piece!';
-                coinStatusTitle.className = trial.chosenSide === 'LEFT'
-                    ? 'font-display text-lg font-bold text-blue-600 leading-snug mt-0.5'
-                    : 'font-display text-lg font-bold text-orange-600 leading-snug mt-0.5';
-                coinStatusSub.textContent = `Auto-demo tore ${trial.chosenSide} piece into 3 strips.`;
+                coinVisualWrapper.classList.add('hidden');
+                marksVisualWrapper.classList.add('hidden');
+                detectorVisualWrapper.classList.add('hidden');
+
+                if (state.ruleMode === 'COIN') {
+                    const leftCm = trial.cut1Ratio * STRIP_CM;
+                    const rightCm = (1 - trial.cut1Ratio) * STRIP_CM;
+                    const chosenCm = trial.chosenSide === 'LEFT' ? leftCm : rightCm;
+                    const otherCm = trial.chosenSide === 'LEFT' ? rightCm : leftCm;
+                    state.pickedShorterInCoin = chosenCm < otherCm;
+
+                    coinVisualWrapper.classList.remove('hidden');
+                    giantCoin.className = 'giant-coin';
+                    void giantCoin.offsetWidth;
+                    giantCoin.classList.add(trial.chosenSide === 'LEFT' ? 'anim-heads' : 'anim-tails');
+                    coinStatusTitle.textContent = trial.chosenSide === 'LEFT' ? 'HEADS! Pick LEFT Piece!' : 'TAILS! Pick RIGHT Piece!';
+                    coinStatusTitle.className = trial.chosenSide === 'LEFT'
+                        ? 'font-display text-lg font-bold text-blue-600 leading-snug mt-0.5'
+                        : 'font-display text-lg font-bold text-orange-600 leading-snug mt-0.5';
+                    coinStatusSub.textContent = state.pickedShorterInCoin
+                        ? `Picked SHORT ${trial.chosenSide} (${chosenCm.toFixed(1)} cm) — ${otherCm.toFixed(1)} cm stayed uncut!`
+                        : `Picked LONG ${trial.chosenSide} (${chosenCm.toFixed(1)} cm) and tore it!`;
+                } else if (state.ruleMode === 'MARKS') {
+                    marksVisualWrapper.classList.remove('hidden');
+                    state.mark1Ratio = trial.mark1Ratio;
+                    state.mark2Ratio = trial.mark2Ratio;
+                    const m1Cm = (trial.mark1Ratio * STRIP_CM).toFixed(1);
+                    const m2Cm = (trial.mark2Ratio * STRIP_CM).toFixed(1);
+                    marksBadgeIcon.textContent = trial.valid ? '🎉' : '✂️';
+                    marksBadgeLabel.innerHTML = trial.valid ? 'Triangle<br>Made!' : '2 Marks<br>Cut';
+                    coinStatusTitle.textContent = `Marks @ ${m1Cm} cm & ${m2Cm} cm!`;
+                    coinStatusTitle.className = 'font-display text-lg font-bold text-purple-700 leading-snug mt-0.5';
+                    coinStatusSub.textContent = `Placed two independent marks across the whole 20 cm strip, then cut both!`;
+                } else {
+                    const leftCm = trial.cut1Ratio * STRIP_CM;
+                    const rightCm = (1 - trial.cut1Ratio) * STRIP_CM;
+                    const chosenCm = trial.chosenSide === 'LEFT' ? leftCm : rightCm;
+                    const otherCm = trial.chosenSide === 'LEFT' ? rightCm : leftCm;
+                    state.pickedShorterInCoin = false;
+
+                    detectorVisualWrapper.classList.remove('hidden');
+                    detectorIcon.textContent = '🏆';
+                    detectorBadgeLabel.innerHTML = `${trial.chosenSide}<br>WINS!`;
+                    coinStatusTitle.textContent = `${trial.chosenSide} was Longer (${chosenCm.toFixed(1)} cm)!`;
+                    coinStatusTitle.className = 'font-display text-lg font-bold text-emerald-700 leading-snug mt-0.5';
+                    coinStatusSub.textContent = `Always tore the longer piece (${chosenCm.toFixed(1)} cm vs ${otherCm.toFixed(1)} cm).`;
+                }
 
                 // Set final cuts & pieces directly
                 const sorted = [trial.cut1Ratio, trial.cut2Ratio].sort((a, b) => a - b);
@@ -997,7 +1410,14 @@
 
                 if (state.phase === 'STEP1_READY' || state.phase === 'STEP1_SLIDING') {
                     const ratio = Math.max(0.05, Math.min(0.95, (px - padX) / stripW));
-                    performFirstTear(ratio);
+                    if (state.ruleMode === 'MARKS') {
+                        placeFirstPencilMark(ratio);
+                    } else {
+                        performFirstTear(ratio);
+                    }
+                } else if (state.phase === 'MARKS_STEP2_READY' || state.phase === 'MARKS_STEP2_SLIDING') {
+                    const ratio = Math.max(0.05, Math.min(0.95, (px - padX) / stripW));
+                    placeSecondPencilMark(ratio);
                 } else if (state.phase === 'STEP3_READY' || state.phase === 'STEP3_SLIDING') {
                     const gap = 14;
                     if (state.chosenSide === 'LEFT') {
@@ -1053,7 +1473,7 @@
                     ctx.clearRect(0, 0, W, H);
 
                     // Update bouncing snail/bunny marker at varying speeds during sliding phases
-                    if (state.phase === 'STEP1_SLIDING' || state.phase === 'STEP3_SLIDING') {
+                    if (state.phase === 'STEP1_SLIDING' || state.phase === 'MARKS_STEP2_SLIDING' || state.phase === 'STEP3_SLIDING') {
                         state.speedChangeTimer++;
                         if (state.speedChangeTimer > 28) {
                             state.speedChangeTimer = 0;
@@ -1080,6 +1500,28 @@
                     drawConfettiParticles(H);
                 }
                 requestAnimationFrame(renderDemoLoop);
+            }
+
+            function drawPencilFlag(mx, stripY, stripH, flagTitle, cmText, colorHex) {
+                ctx.save();
+                ctx.strokeStyle = colorHex;
+                ctx.lineWidth = 3;
+                ctx.setLineDash([4, 3]);
+                ctx.beginPath();
+                ctx.moveTo(mx, stripY - 6);
+                ctx.lineTo(mx, stripY + stripH + 6);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Top flag pill
+                const pillW = 78;
+                const pillH = 20;
+                fillRoundedRect(mx - pillW / 2, stripY - 28, pillW, pillH, 6, colorHex);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 11px Fredoka, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(`${flagTitle}: ${cmText}`, mx, stripY - 14);
+                ctx.restore();
             }
 
             function drawTopStripZone(W, H) {
@@ -1114,7 +1556,13 @@
                 }
 
                 // Draw strip according to current phase
-                if (state.phase === 'STEP1_READY' || state.phase === 'STEP1_SLIDING') {
+                if (
+                    state.phase === 'STEP1_READY' ||
+                    state.phase === 'STEP1_SLIDING' ||
+                    state.phase === 'MARKS_STEP2_READY' ||
+                    state.phase === 'MARKS_STEP2_SLIDING' ||
+                    state.phase === 'MARKS_STEP3_CUT'
+                ) {
                     const grad = ctx.createLinearGradient(padX, 0, padX + stripW, 0);
                     grad.addColorStop(0, '#38bdf8');
                     grad.addColorStop(0.5, '#818cf8');
@@ -1123,9 +1571,30 @@
 
                     ctx.fillStyle = '#ffffff';
                     ctx.font = 'bold 13px Fredoka, sans-serif';
-                    ctx.fillText('20 cm Whole Paper Strip', padX + stripW / 2, stripY + 22);
+                    ctx.fillText(
+                        state.ruleMode === 'MARKS' ? '20 cm Intact Paper Strip (Not Cut Yet!)' : '20 cm Whole Paper Strip',
+                        padX + stripW / 2,
+                        stripY + 22
+                    );
 
-                    if (state.phase === 'STEP1_SLIDING') {
+                    // Draw placed pencil marks for Mode 2 (Two Marks & Cut)
+                    if (state.mark1Ratio !== null) {
+                        const m1x = padX + state.mark1Ratio * stripW;
+                        drawPencilFlag(m1x, stripY, stripH, 'M1', `${(state.mark1Ratio * STRIP_CM).toFixed(1)}cm`, '#7c3aed');
+                    }
+                    if (state.mark2Ratio !== null) {
+                        const m2x = padX + state.mark2Ratio * stripW;
+                        drawPencilFlag(m2x, stripY, stripH, 'M2', `${(state.mark2Ratio * STRIP_CM).toFixed(1)}cm`, '#db2777');
+                    }
+
+                    // Reminder banner under intact strip during Step 2 of Two Marks mode
+                    if (state.phase === 'MARKS_STEP2_READY' || state.phase === 'MARKS_STEP2_SLIDING') {
+                        ctx.fillStyle = '#6d28d9';
+                        ctx.font = 'bold 12px Nunito, sans-serif';
+                        ctx.fillText('↔️ Slide across the WHOLE 20 cm strip again for Mark 2!', padX + stripW / 2, stripY + stripH + 56);
+                    }
+
+                    if (state.phase === 'STEP1_SLIDING' || state.phase === 'MARKS_STEP2_SLIDING') {
                         const mx = padX + state.markerPos * stripW;
                         const isFast = state.markerSpeed > 0.018;
                         drawBouncingMarker(mx, stripY, stripH, isFast ? '🐰' : '🐌', `${(state.markerPos * STRIP_CM).toFixed(1)} cm`);
@@ -1151,19 +1620,19 @@
                     }
                     ctx.restore();
 
-                    // RIGHT piece
-                    ctx.save();
-                    ctx.globalAlpha = dimRight ? 0.28 : 1;
-                    fillRoundedRect(rightX, stripY, rightW, stripH, 9, '#f97316');
-                    if (rightW > 46) {
-                        ctx.fillStyle = '#ffffff';
-                        ctx.font = 'bold 12px Fredoka, sans-serif';
-                        ctx.fillText(`RIGHT ${((1 - state.cut1Ratio) * STRIP_CM).toFixed(1)}cm`, rightX + rightW / 2, stripY + 21);
-                    }
-                    ctx.restore();
+                    // Label set-aside piece or Longer/Shorter comparison badges in Step 2
+                    if (state.phase === 'STEP2_COIN' && state.ruleMode === 'LONGER') {
+                        const leftCm = state.cut1Ratio * STRIP_CM;
+                        const rightCm = (1 - state.cut1Ratio) * STRIP_CM;
+                        const leftLonger = leftCm >= rightCm;
 
-                    // Label set-aside piece
-                    if (dimLeft) {
+                        ctx.font = 'bold 12px Fredoka, sans-serif';
+                        ctx.fillStyle = leftLonger ? '#d97706' : '#64748b';
+                        ctx.fillText(leftLonger ? '🏆 LONGER!' : 'shorter', padX + leftW / 2, stripY + stripH + 18);
+
+                        ctx.fillStyle = !leftLonger ? '#d97706' : '#64748b';
+                        ctx.fillText(!leftLonger ? '🏆 LONGER!' : 'shorter', rightX + rightW / 2, stripY + stripH + 18);
+                    } else if (dimLeft) {
                         ctx.fillStyle = '#94a3b8';
                         ctx.font = 'bold 11px Nunito, sans-serif';
                         ctx.fillText('(Set aside)', padX + leftW / 2, stripY + stripH + 16);
@@ -1447,6 +1916,9 @@
             const statFailCount = document.getElementById('statFailCount');
             const statRatePct = document.getElementById('statRatePct');
             const rateProgressBar = document.getElementById('rateProgressBar');
+            const mathSecretBarLabel = document.getElementById('mathSecretBarLabel');
+            const mathSecretMarkerLine = document.getElementById('mathSecretMarkerLine');
+            const mathSecretAxisLabel = document.getElementById('mathSecretAxisLabel');
             const compScore100 = document.getElementById('compScore100');
             const inputClassScore = document.getElementById('inputClassScore');
             const showdownMessage = document.getElementById('showdownMessage');
@@ -1530,10 +2002,14 @@
             function updateShowdownCommentary() {
                 const comp = state.gridHistory.filter(Boolean).length;
                 const rawClass = inputClassScore.value.trim();
+                const expectedNum = state.ruleMode === 'LONGER' ? 39 : state.ruleMode === 'MARKS' ? 25 : 19;
 
                 if (rawClass === '') {
-                    showdownMessage.textContent =
-                        '🎯 Math predicts ~19 triangles out of 100 because half the time the coin picks the short piece!';
+                    showdownMessage.textContent = state.ruleMode === 'LONGER'
+                        ? '🏆 Math predicts ~39 triangles out of 100 when we ALWAYS pick the longer piece (double the coin-flip score!)'
+                        : state.ruleMode === 'MARKS'
+                        ? '✏️ Math predicts 25 triangles out of 100 (exact 1/4!) when we place two independent marks across the whole strip!'
+                        : '🎯 Math predicts ~19 triangles out of 100 because half the time the coin picks the short piece!';
                     return;
                 }
 
@@ -1541,9 +2017,9 @@
                 if (state.gridHistory.length < 100) {
                     showdownMessage.textContent = `🙋 Our Class got ${cls}/100! Click "Run All 100 Strips!" to finish the Computer's 100 tries and compare!`;
                 } else if (cls > comp) {
-                    showdownMessage.textContent = `🏆 Amazing! Our Class (${cls}/100) beat the Computer (${comp}/100)! Both are right around the ~19 math secret!`;
+                    showdownMessage.textContent = `🏆 Amazing! Our Class (${cls}/100) beat the Computer (${comp}/100)! Both are right around the ~${expectedNum} math secret!`;
                 } else if (cls < comp) {
-                    showdownMessage.textContent = `💻 Computer (${comp}/100) edged out Our Class (${cls}/100)! Look how close both are to the ~19 math secret!`;
+                    showdownMessage.textContent = `💻 Computer (${comp}/100) edged out Our Class (${cls}/100)! Look how close both are to the ~${expectedNum} math secret!`;
                 } else {
                     showdownMessage.textContent = `🤝 It's a tie! Both Our Class and the Computer made ${cls}/100 triangles!`;
                 }
@@ -1565,7 +2041,7 @@
                 }
                 const batch = [];
                 for (let i = 0; i < 20; i++) {
-                    batch.push(simulateVariant2Trial().valid);
+                    batch.push(simulateTrialByActiveMode().valid);
                 }
                 recordTrialsToScoreboard(batch);
                 ClassroomAudio.playSuccessChime();
@@ -1575,7 +2051,7 @@
                 clearAllScoreboards();
                 const batch = [];
                 for (let i = 0; i < 100; i++) {
-                    batch.push(simulateVariant2Trial().valid);
+                    batch.push(simulateTrialByActiveMode().valid);
                 }
                 recordTrialsToScoreboard(batch);
                 ClassroomAudio.playSuccessChime();
@@ -1584,7 +2060,7 @@
             document.getElementById('btnRunSuper1000').addEventListener('click', () => {
                 const batch = [];
                 for (let i = 0; i < 1000; i++) {
-                    batch.push(simulateVariant2Trial().valid);
+                    batch.push(simulateTrialByActiveMode().valid);
                 }
                 recordTrialsToScoreboard(batch);
                 ClassroomAudio.playSuccessChime();
@@ -1593,7 +2069,60 @@
             document.getElementById('btnClearBoard').addEventListener('click', clearAllScoreboards);
             inputClassScore.addEventListener('input', updateShowdownCommentary);
 
-            // ==================== 9. TAB NAVIGATION & SOUND TOGGLE ====================
+            // ==================== 9. RULE MODE SWITCHER & TAB NAVIGATION ====================
+            function setRuleMode(newMode) {
+                if (state.ruleMode === newMode) return;
+                state.ruleMode = newMode;
+
+                const inactiveBtnClass = 'px-3 py-1.5 rounded-xl font-display font-bold text-xs sm:text-sm text-slate-700 hover:bg-slate-100 transition active:scale-95 flex items-center gap-1.5';
+                btnModeCoin.className = inactiveBtnClass;
+                btnModeMarks.className = inactiveBtnClass;
+                btnModeLonger.className = inactiveBtnClass;
+
+                if (newMode === 'COIN') {
+                    btnModeCoin.className = 'px-3 py-1.5 rounded-xl font-display font-bold text-xs sm:text-sm bg-blue-600 text-white shadow transition active:scale-95 flex items-center gap-1.5';
+                    headerRuleSubtitle.textContent = 'Rule 1: Tear Once → Flip Coin (Heads = Left, Tails = Right) → Second Tear → Build Triangle!';
+                    modeExpectationBadge.className = 'flex items-center gap-2 bg-white px-3.5 py-1.5 rounded-2xl border-2 border-blue-200 shadow-sm text-xs sm:text-sm font-extrabold text-slate-700';
+                    modeExpectationText.textContent = '~19.3% chance → Expect ~19 triangles out of 100';
+                    modeExpectationHint.textContent = 'Lowest chance (coin picks short piece 50% of time)';
+
+                    mathSecretBarLabel.textContent = 'Math Secret: ~19.3%';
+                    mathSecretMarkerLine.style.left = '19.31%';
+                    mathSecretMarkerLine.title = 'Math Secret: 19.3%';
+                    mathSecretAxisLabel.textContent = '▲ Math Secret (~19 out of 100)';
+                } else if (newMode === 'MARKS') {
+                    btnModeMarks.className = 'px-3 py-1.5 rounded-xl font-display font-bold text-xs sm:text-sm bg-purple-600 text-white shadow transition active:scale-95 flex items-center gap-1.5';
+                    headerRuleSubtitle.textContent = 'Rule 2: Slide & Make Mark 1 → Slide Whole Strip Again & Make Mark 2 → Cut Both Marks!';
+                    modeExpectationBadge.className = 'flex items-center gap-2 bg-white px-3.5 py-1.5 rounded-2xl border-2 border-purple-300 shadow-sm text-xs sm:text-sm font-extrabold text-slate-700';
+                    modeExpectationText.textContent = '25.0% chance (exact 1/4!) → Expect ~25 triangles out of 100';
+                    modeExpectationHint.textContent = 'Classic Broken Stick Probability!';
+
+                    mathSecretBarLabel.textContent = 'Math Secret: 25.0% (1/4)';
+                    mathSecretMarkerLine.style.left = '25.0%';
+                    mathSecretMarkerLine.title = 'Math Secret: 25.0%';
+                    mathSecretAxisLabel.textContent = '▲ Math Secret (25 out of 100)';
+                } else {
+                    btnModeLonger.className = 'px-3 py-1.5 rounded-xl font-display font-bold text-xs sm:text-sm bg-amber-500 text-amber-950 shadow transition active:scale-95 flex items-center gap-1.5';
+                    headerRuleSubtitle.textContent = 'Rule 3: Tear Once → Throw Away Coin & ALWAYS Pick Longer Piece → Second Tear → Build Triangle!';
+                    modeExpectationBadge.className = 'flex items-center gap-2 bg-white px-3.5 py-1.5 rounded-2xl border-2 border-amber-300 shadow-sm text-xs sm:text-sm font-extrabold text-slate-700';
+                    modeExpectationText.textContent = '~38.6% chance → Expect ~39 triangles out of 100 (DOUBLE!)';
+                    modeExpectationHint.textContent = '2× higher than Coin Flip!';
+
+                    mathSecretBarLabel.textContent = 'Math Secret: ~38.6%';
+                    mathSecretMarkerLine.style.left = '38.63%';
+                    mathSecretMarkerLine.title = 'Math Secret: 38.6%';
+                    mathSecretAxisLabel.textContent = '▲ Math Secret (~39 out of 100)';
+                }
+
+                // Reset active strip and scoreboard so trials match the selected rule
+                resetDemoStrip();
+                clearAllScoreboards();
+            }
+
+            btnModeCoin.addEventListener('click', () => setRuleMode('COIN'));
+            btnModeMarks.addEventListener('click', () => setRuleMode('MARKS'));
+            btnModeLonger.addEventListener('click', () => setRuleMode('LONGER'));
+
             function switchTab(tabName) {
                 ClassroomAudio.stopDrumLoop();
                 clearAutoStop();
